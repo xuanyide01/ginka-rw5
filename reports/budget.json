@@ -1,0 +1,19 @@
+{
+  "jpegQuality": 54,
+  "cgQuality": 70,
+  "requestsMapped": 1715,
+  "staticFiles": 383,
+  "bodyFiles": 55,
+  "uniqueExpressionPatches": 1032,
+  "expressionAtlasSlotSize": "1x1",
+  "expressionAtlasSize": "per-patch",
+  "expressionAtlasFiles": 516,
+  "storyChunkFiles": 106,
+  "bytes": {
+    "storyJsonUncompressed": 1920339,
+    "images": 6979530,
+    "faces": 1382991,
+    "uiAndGallery": 91763
+  },
+  "totalEntriesBeforeFontAndApp": 1063
+}

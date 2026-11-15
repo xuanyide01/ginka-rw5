@@ -1,0 +1,18 @@
+{
+  "requests": 1715,
+  "portraits": 1216,
+  "uniquePortraitBodies": 55,
+  "statics": 499,
+  "cgGroups": 32,
+  "cgVariants": 134,
+  "uniqueRawExtracts": 806,
+  "rawExtractBytes": 970554082,
+  "failures": 0,
+  "estimatedRpkEntries": 979,
+  "extraUiKeys": [
+    "font",
+    "title_bg",
+    "title_logo",
+    "title_pack"
+  ]
+}

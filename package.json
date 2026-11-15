@@ -1,0 +1,10 @@
+{
+  "name": "ginka-rw5",
+  "version": "0.1.1",
+  "private": true,
+  "description": "GINKA REDMI Watch 5 text and image reader",
+  "scripts": {
+    "test": "node --test tests/*.test.mjs",
+    "build": "node tools/build.cjs"
+  }
+}

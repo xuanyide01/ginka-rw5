@@ -1,0 +1,127 @@
+<!doctype html>
+<html lang="zh-CN">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>《GINKA》 · REDMI Watch 5 官方 Vela 模拟器实时视图</title>
+<style>
+  *{box-sizing:border-box}
+  body{margin:0;background:#071224;color:#e6f3ff;font:15px system-ui;min-height:100vh;display:grid;place-items:center}
+  main{display:flex;align-items:center;gap:36px;padding:24px}
+  .frame{width:372px;flex-shrink:0;padding:16px;background:#16263d;border:2px solid #25c4de;border-radius:48px;box-shadow:0 20px 70px #000a}
+  .screen{width:336px;aspect-ratio:432/514;overflow:hidden;border-radius:34px;background:#000;position:relative;border:1px solid #1b4f7a}
+  img{display:block;width:100%;height:100%;object-fit:contain;cursor:pointer;touch-action:none;user-select:none}
+  aside{max-width:320px}
+  h1{font-size:22px;margin:0 0 12px;color:#8de4ff}
+  p{line-height:1.7;color:#b4cbe3;margin:8px 0}
+  strong{color:#ffffff}
+  button{display:block;width:240px;margin:10px 0;padding:12px;border:1px solid #2aaae0;border-radius:10px;background:#133863;color:#fff;font-size:15px;cursor:pointer}
+  button:hover{background:#1b4e87}
+  #status{font-size:13px;min-height:42px;color:#9de8ff;white-space:pre-wrap}
+  @media(max-width:740px){main{flex-direction:column;gap:20px;padding:16px}.frame{width:min(360px,calc(100vw - 32px))}.screen{width:100%;height:auto}aside{max-width:340px}}
+</style>
+<main>
+  <div class="frame">
+    <div class="screen"><img id="screen" alt="GINKA REDMI Watch 5 官方 Vela 模拟器实时画面"></div>
+  </div>
+  <aside>
+    <h1>《GINKA》 · REDMI Watch 5</h1>
+    <p><strong>432 × 514 · 纯图文袖珍版</strong><br>点击屏幕操作 · 拖动滚动长文<br><strong>按住 0.6 秒不放（长按）</strong>可触发存档栏位删除确认。</p>
+    <button onclick="command('start')">启动 / 打开 GINKA</button>
+    <button onclick="command('wake')">唤醒 / 息屏电源键</button>
+    <p id="status">正在连接 Vela 模拟器…</p>
+    <p>设备：GinkaRW5 (432×514)<br>包名：com.antigravity.ginka.rw5<br>运行时：官方 Vela 5.0 手表镜像（非实机固件）。</p>
+  </aside>
+</main>
+<script>
+const screen = document.querySelector('#screen'), status = document.querySelector('#status');
+let updating = false, identityOK = false, down = null, holdTimer = null, holdFired = false;
+
+async function verify() {
+  const r = await fetch('/info');
+  const i = await r.json();
+  if (i.name !== 'GinkaRW5' || i.packageName !== 'com.antigravity.ginka.rw5') {
+    throw Error('设备身份不符，已禁止操作');
+  }
+  identityOK = true;
+  status.textContent = i.bootReady ? '已连接《GINKA》Vela 模拟器，可直接点击操作。' : '模拟器正在启动中…';
+}
+
+async function command(endpoint) {
+  try {
+    if (!identityOK) throw Error('设备身份尚未核实');
+    const r = await fetch('/' + endpoint);
+    const d = await r.json();
+    if (!r.ok) throw Error(d.error || ('HTTP ' + r.status));
+    status.textContent = typeof d === 'string' ? (d || '操作完成') : JSON.stringify(d);
+  } catch (e) {
+    status.textContent = e.message;
+  }
+}
+
+const point = e => {
+  const r = screen.getBoundingClientRect();
+  const w = screen.naturalWidth || 432;
+  const h = screen.naturalHeight || 514;
+  return {
+    x: Math.max(0, Math.min(w - 1, Math.round((e.clientX - r.left) * w / r.width))),
+    y: Math.max(0, Math.min(h - 1, Math.round((e.clientY - r.top) * h / r.height))),
+  };
+};
+
+screen.addEventListener('pointerdown', e => {
+  if (!identityOK) return;
+  down = point(e);
+  holdFired = false;
+  screen.setPointerCapture(e.pointerId);
+  clearTimeout(holdTimer);
+  holdTimer = setTimeout(async () => {
+    if (!down) return;
+    holdFired = true;
+    const p = down;
+    down = null;
+    await command(`longpress?x=${p.x}&y=${p.y}&ms=700`);
+  }, 560);
+});
+
+screen.addEventListener('pointermove', e => {
+  if (!down) return;
+  const cur = point(e);
+  if (Math.hypot(cur.x - down.x, cur.y - down.y) > 8) {
+    clearTimeout(holdTimer);
+  }
+});
+
+screen.addEventListener('pointerup', async e => {
+  clearTimeout(holdTimer);
+  if (holdFired || !down) { holdFired = false; down = null; return; }
+  const end = point(e), start = down;
+  down = null;
+  if (Math.hypot(end.x - start.x, end.y - start.y) > 8) {
+    await command(`drag?x0=${start.x}&y0=${start.y}&x1=${end.x}&y1=${end.y}`);
+  } else {
+    await command(`click?x=${end.x}&y=${end.y}`);
+  }
+});
+
+screen.addEventListener('dragstart', e => e.preventDefault());
+screen.addEventListener('pointercancel', () => { clearTimeout(holdTimer); down = null; holdFired = false; });
+
+async function refresh() {
+  if (updating || !identityOK) return;
+  updating = true;
+  try {
+    const r = await fetch('/screen?t=' + Date.now());
+    if (!r.ok) { updating = false; return; }
+    const u = URL.createObjectURL(await r.blob()), old = screen.src;
+    screen.src = u;
+    if (old.startsWith('blob:')) URL.revokeObjectURL(old);
+  } catch (e) {
+    status.textContent = e.message;
+  } finally {
+    updating = false;
+  }
+}
+
+verify().then(() => { refresh(); setInterval(refresh, 500); }).catch(e => { status.textContent = e.message; });
+</script>
+</html>

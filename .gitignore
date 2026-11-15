@@ -1,0 +1,8 @@
+.qa/
+build/
+node_modules/
+probe/
+*.log
+*.tmp
+.DS_Store
+Thumbs.db

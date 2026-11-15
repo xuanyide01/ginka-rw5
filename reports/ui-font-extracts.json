@@ -1,0 +1,46 @@
+{
+  "font": {
+    "archive": "data.xp3",
+    "index": 54,
+    "name": "data_54",
+    "kind": "OTF",
+    "original": 16412776,
+    "width": null,
+    "height": null,
+    "hasAlpha": null,
+    "output": "E:\\Antigravity\\ginka-rw5\\probe\\raw\\data\\00054.otf"
+  },
+  "title_bg": {
+    "archive": "data.xp3",
+    "index": 496,
+    "name": "data_496",
+    "kind": "PNG",
+    "original": 1245931,
+    "width": 1280,
+    "height": 720,
+    "hasAlpha": false,
+    "output": "E:\\Antigravity\\ginka-rw5\\probe\\raw\\data\\00496.png"
+  },
+  "title_logo": {
+    "archive": "data.xp3",
+    "index": 467,
+    "name": "data_467",
+    "kind": "PNG",
+    "original": 50212,
+    "width": 1280,
+    "height": 720,
+    "hasAlpha": true,
+    "output": "E:\\Antigravity\\ginka-rw5\\probe\\raw\\data\\00467.png"
+  },
+  "title_pack": {
+    "archive": "patch.xp3",
+    "index": 132,
+    "name": "patch_132",
+    "kind": "TLG5",
+    "original": 71832,
+    "width": 234,
+    "height": 250,
+    "hasAlpha": true,
+    "output": "E:\\Antigravity\\ginka-rw5\\probe\\raw\\patch\\00132.tlg"
+  }
+}

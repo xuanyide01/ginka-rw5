@@ -1,0 +1,2708 @@
+<template>
+  <div class="page" onswipe="swipe">
+    <div if="{{mode === 'play' || mode === 'choice'}}" class="art" onclick="advance">
+      <image class="background" src="{{backgroundSrc}}" onerror="backgroundError"></image>
+      <div for="{{portraits}}" tid="id" class="portrait-group">
+        <image class="body" src="{{$item.src}}" style="width:{{$item.width}}px;height:{{$item.height}}px;left:{{$item.left}}px;top:{{$item.top}}px;opacity:{{$item.opacity}};"></image>
+        <div if="{{$item.patch}}" class="face-viewport" style="width:{{$item.patchWidth}}px;height:{{$item.patchHeight}}px;left:{{$item.patchLeft}}px;top:{{$item.patchTop}}px;">
+          <image class="face-sheet" src="{{$item.patch}}" style="width:{{$item.patchAtlasWidth}}px;height:{{$item.patchAtlasHeight}}px;left:{{$item.patchImageLeft}}px;top:{{$item.patchImageTop}}px;opacity:{{$item.opacity}};"></image>
+        </div>
+      </div>
+    </div>
+
+    <div if="{{mode === 'play'}}" class="dialogue-panel">
+      <image class="textbox-bg" src="/common/ui/textbox_bg.png"></image>
+      <div class="dialogue-content">
+        <div class="speaker-head">
+          <div class="speaker-row">
+            <text class="speaker">{{speaker}}</text>
+            <div if="{{dialogueScrollable}}" class="scroll-ctrls">
+              <div class="scroll-mini-btn" onclick="dialogueScrollUp"><text class="scroll-mini-txt">上</text></div>
+              <div class="scroll-mini-btn" onclick="dialogueScrollDown"><text class="scroll-mini-txt">下</text></div>
+            </div>
+          </div>
+          <image if="{{speaker}}" class="name-line" src="/common/ui/name_line.png"></image>
+        </div>
+        <scroll id="dialogue-scroll" class="dialogue-scroll" scroll-y="true" onkey="dialogueKey" ontouchstart="dialogueTouchStart" ontouchmove="dialogueTouchMove" ontouchend="dialogueTouchEnd" onscroll="dialogueScrolled" onclick="dialogueTap">
+          <div class="dialogue-lines" style="height:{{dialogueHeight}}px;">
+            <text for="{{dialogueLines}}" tid="id" class="dialogue-line" style="font-size:{{fontSize}}px;height:{{fontSize===28?38:34}}px;">{{$item.text}}</text>
+          </div>
+        </scroll>
+        <div class="toolbar">
+          <div class="tool-btn" onclick="goBack">
+            <text class="tool-text">‹ 回看</text>
+          </div>
+          <div class="tool-btn tool-btn-menu" onclick="showMenu">
+            <text class="tool-text tool-text-cyan">{{autoEnabled ? '菜单 · 自动中' : '菜单 SYSTEM'}}</text>
+          </div>
+          <div class="tool-btn" onclick="advance">
+            <text class="tool-text">下一句 ›</text>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div if="{{mode === 'choice'}}" class="choice-panel">
+      <image class="textbox-bg" src="/common/ui/textbox_bg.png"></image>
+      <div class="choice-content">
+        <div class="choice-head">
+          <text class="choice-title">◆ 请选择下一步</text>
+          <div class="tool-btn" onclick="showMenu">
+            <text class="tool-text tool-text-cyan">菜单</text>
+          </div>
+        </div>
+        <scroll class="choice-list" scroll-y="true">
+          <div class="choice-items">
+            <div for="{{options}}" tid="id" class="choice" onclick="pick($idx)">
+              <image class="choice-bg" src="/common/ui/choice_bar.png"></image>
+              <div class="choice-label-box">
+                <text class="choice-text">{{$item.text}}</text>
+              </div>
+            </div>
+          </div>
+        </scroll>
+      </div>
+    </div>
+
+    <div if="{{mode === 'title'}}" class="title-page">
+      <image class="title-bg-top" src="{{titleBgTop}}"></image>
+      <image class="title-bg-bot" src="{{titleBgBot}}"></image>
+      <image class="title-logo" src="/common/title_logo.png"></image>
+      <div class="title-menu" style="top:{{titleMenuTop}}px;">
+        <div class="title-item" style="height:{{titleRowH}}px;opacity:{{hasAnySave ? 1 : 0.48}};" onclick="continueGame">
+          <image class="title-sprite" style="width:{{titleWCont}}px;height:{{titleSpriteH}}px;" src="/common/ui/title_btn_cont.png"></image>
+        </div>
+        <div if="{{afterUnlocked}}" class="title-item" style="height:{{titleRowH}}px;" onclick="startAfter">
+          <image class="title-sprite" style="width:{{titleWAfter}}px;height:{{titleSpriteH}}px;" src="/common/ui/title_btn_after.png"></image>
+          <image if="{{!afterStarted}}" class="title-new-img" style="width:{{titleNewW}}px;height:{{titleNewH}}px;" src="/common/ui/title_new.png"></image>
+        </div>
+        <div if="{{nextUnlocked}}" class="title-item" style="height:{{titleRowH}}px;" onclick="startNext">
+          <image class="title-sprite" style="width:{{titleWNext}}px;height:{{titleSpriteH}}px;" src="/common/ui/title_btn_next.png"></image>
+          <image if="{{!nextStarted}}" class="title-new-img" style="width:{{titleNewW}}px;height:{{titleNewH}}px;" src="/common/ui/title_new.png"></image>
+        </div>
+        <div class="title-item" style="height:{{titleRowH}}px;" onclick="startNew">
+          <image class="title-sprite" style="width:{{titleWStart}}px;height:{{titleSpriteH}}px;" src="/common/ui/title_btn_start.png"></image>
+        </div>
+        <div class="title-item" style="height:{{titleRowH}}px;" onclick="loadGame">
+          <image class="title-sprite" style="width:{{titleWLoad}}px;height:{{titleSpriteH}}px;" src="/common/ui/title_btn_load.png"></image>
+        </div>
+        <div class="title-item" style="height:{{titleRowH}}px;" onclick="openConfig">
+          <image class="title-sprite" style="width:{{titleWSystem}}px;height:{{titleSpriteH}}px;" src="/common/ui/title_btn_system.png"></image>
+        </div>
+        <div class="title-item" style="height:{{titleRowH}}px;" onclick="openExtra">
+          <image class="title-sprite" style="width:{{titleWExtra}}px;height:{{titleSpriteH}}px;" src="/common/ui/title_btn_extra.png"></image>
+        </div>
+        <div class="title-item" style="height:{{titleRowH}}px;" onclick="exitApplication">
+          <image class="title-sprite" style="width:{{titleWExit}}px;height:{{titleSpriteH}}px;" src="/common/ui/title_btn_exit.png"></image>
+        </div>
+      </div>
+    </div>
+
+    <div if="{{mode === 'menu'}}" class="full-panel">
+      <image class="panel-bg-top" src="/common/ui/panel_top.jpg"></image>
+      <image class="panel-bg-bot" src="/common/ui/panel_bot.jpg"></image>
+      <div class="panel-body">
+        <div class="panel-top-bar">
+          <text class="top-brand">GINKA · SYSTEM</text>
+          <text class="top-status">{{chapterLabel || '阅读中'}}</text>
+        </div>
+        <div class="panel-main">
+          <div class="ribbon-box">
+            <image class="ribbon-bg" src="/common/ui/header_pill.png"></image>
+            <text class="ribbon-title">● 阅读菜单 / MENU</text>
+          </div>
+          <div class="menu-grid-row">
+            <div class="menu-tile menu-tile-accent" onclick="saveGame">
+              <text class="menu-tile-title">保存进度</text>
+              <text class="menu-tile-sub">SAVE</text>
+            </div>
+            <div class="menu-tile menu-tile-accent" onclick="loadGame">
+              <text class="menu-tile-title">读取进度</text>
+              <text class="menu-tile-sub">LOAD</text>
+            </div>
+          </div>
+          <div class="menu-grid-row">
+            <div class="menu-tile" onclick="goNextChapter">
+              <text class="menu-tile-title">下一章 ›</text>
+              <text class="menu-tile-sub">SKIP CHAPTER</text>
+            </div>
+            <div class="menu-tile" onclick="toggleAuto">
+              <text class="menu-tile-title">{{autoLabel}}</text>
+              <text class="menu-tile-sub">AUTO PLAY</text>
+            </div>
+          </div>
+          <div class="menu-grid-row">
+            <div class="menu-tile" onclick="cycleAutoSpeed">
+              <text class="menu-tile-title">{{autoSpeedLabel}}</text>
+              <text class="menu-tile-sub">AUTO SPEED</text>
+            </div>
+            <div class="menu-tile" onclick="toggleSpeed">
+              <text class="menu-tile-title">{{speedLabel}}</text>
+              <text class="menu-tile-sub">TEXT SPEED</text>
+            </div>
+          </div>
+          <div class="menu-grid-row">
+            <div class="menu-tile" onclick="toggleFont">
+              <text class="menu-tile-title">{{fontLabel}}</text>
+              <text class="menu-tile-sub">FONT SIZE</text>
+            </div>
+            <div class="menu-tile menu-tile-muted" onclick="toTitle">
+              <text class="menu-tile-title muted-txt">返回标题</text>
+              <text class="menu-tile-sub">TITLE</text>
+            </div>
+          </div>
+          <div class="panel-btn primary-btn" style="margin-top:4px;margin-bottom:0px;" onclick="resume">
+            <text class="panel-btn-text">返回游戏 · RESUME</text>
+          </div>
+        </div>
+        <div class="panel-footer-bar">
+          <text class="footer-hint">纯图文阅读模式 · 点击返回继续剧情</text>
+        </div>
+      </div>
+    </div>
+
+    <div if="{{mode === 'slots'}}" class="full-panel">
+      <image class="panel-bg-top" src="/common/ui/panel_top.jpg"></image>
+      <image class="panel-bg-bot" src="/common/ui/panel_bot.jpg"></image>
+      <div class="panel-body">
+        <div class="panel-top-bar">
+          <text class="top-brand">GINKA · DATA</text>
+          <text class="top-status">{{slotPageLabel}}</text>
+        </div>
+        <div class="panel-main">
+          <div class="ribbon-box">
+            <image class="ribbon-bg" src="/common/ui/header_pill.png"></image>
+            <text class="ribbon-title">● {{slotTitle}}</text>
+          </div>
+          <div class="slot-list">
+            <div for="{{slotRows}}" tid="id" class="slot-card" style="background-color:{{$item.occupied ? 'rgba(18, 48, 90, 0.92)' : 'rgba(9, 23, 46, 0.80)'}};border-color:{{$item.occupied ? '#2baae0' : '#1b4170'}};" ontouchstart="beginSlotTouch($item.index, $event)" ontouchmove="moveSlotTouch($event)" onclick="selectSlot($item.index)" onlongpress="longPressSlot($item.index)">
+              <div class="slot-accent" style="background-color:{{$item.occupied ? '#25c4de' : '#1e3c68'}};"></div>
+              <div class="slot-inner">
+                <div class="slot-top">
+                  <text class="slot-title" style="color:{{$item.occupied ? '#8de4ff' : '#6580a6'}};">{{$item.title}}</text>
+                  <text class="slot-meta" style="color:{{$item.occupied ? '#ffd782' : '#587194'}};">{{$item.meta}}</text>
+                </div>
+                <text class="slot-preview" style="color:{{$item.occupied ? '#dce9fa' : '#587194'}};">{{$item.preview || '尚未保存进度'}}</text>
+              </div>
+            </div>
+          </div>
+          <div class="pager-row">
+            <div class="pager-btn" onclick="previousSlotPage"><text class="pager-btn-text">‹ 上页</text></div>
+            <div class="pager-btn pager-btn-center" onclick="closeSlots"><text class="pager-btn-text">返回</text></div>
+            <div class="pager-btn" onclick="nextSlotPage"><text class="pager-btn-text">下页 ›</text></div>
+          </div>
+        </div>
+        <div class="panel-footer-bar">
+          <text class="footer-hint">点按选择栏位 · 长按已存栏位删除</text>
+        </div>
+      </div>
+    </div>
+
+    <div if="{{mode === 'overwrite'}}" class="full-panel">
+      <image class="panel-bg-top" src="/common/ui/panel_top.jpg"></image>
+      <image class="panel-bg-bot" src="/common/ui/panel_bot.jpg"></image>
+      <div class="panel-body">
+        <div class="panel-top-bar">
+          <text class="top-brand">GINKA · SAVE</text>
+          <text class="top-status">DIALOG</text>
+        </div>
+        <div class="panel-main">
+          <div class="ribbon-box">
+            <image class="ribbon-bg" src="/common/ui/header_pill.png"></image>
+            <text class="ribbon-title">● 覆盖存档确认</text>
+          </div>
+          <div class="dialog-box">
+            <text class="dialog-title">{{overwriteTitle}}</text>
+            <text class="overwrite-detail">{{overwriteDetail}}</text>
+          </div>
+          <div class="panel-btn primary-btn" onclick="confirmOverwrite">
+            <text class="panel-btn-text">确认覆盖 · OK</text>
+          </div>
+          <div class="panel-btn muted-action" onclick="cancelOverwrite">
+            <text class="panel-btn-text muted-txt">取消 · CANCEL</text>
+          </div>
+        </div>
+        <div class="panel-footer-bar">
+          <text class="footer-hint">覆盖后原栏位记录将被替换</text>
+        </div>
+      </div>
+    </div>
+
+    <div if="{{mode === 'delete'}}" class="full-panel">
+      <image class="panel-bg-top" src="/common/ui/panel_top.jpg"></image>
+      <image class="panel-bg-bot" src="/common/ui/panel_bot.jpg"></image>
+      <div class="panel-body">
+        <div class="panel-top-bar">
+          <text class="top-brand">GINKA · DELETE</text>
+          <text class="top-status">DIALOG</text>
+        </div>
+        <div class="panel-main">
+          <div class="ribbon-box">
+            <image class="ribbon-bg" src="/common/ui/header_pill.png"></image>
+            <text class="ribbon-title">● 删除存档确认</text>
+          </div>
+          <div class="dialog-box dialog-box-danger">
+            <text class="dialog-title danger-title">{{deleteTitle}}</text>
+            <text class="overwrite-detail">{{deleteDetail}}</text>
+          </div>
+          <div class="panel-btn danger-btn" onclick="confirmDelete">
+            <text class="panel-btn-text">确认删除 · DELETE</text>
+          </div>
+          <div class="panel-btn muted-action" onclick="cancelDelete">
+            <text class="panel-btn-text muted-txt">取消 · CANCEL</text>
+          </div>
+        </div>
+        <div class="panel-footer-bar">
+          <text class="footer-hint">删除后将清空该存档栏位数据</text>
+        </div>
+      </div>
+    </div>
+
+    <div if="{{mode === 'extra'}}" class="full-panel">
+      <image class="panel-bg-top" src="/common/ui/panel_top.jpg"></image>
+      <image class="panel-bg-bot" src="/common/ui/panel_bot.jpg"></image>
+      <div class="panel-body">
+        <div class="panel-top-bar">
+          <text class="top-brand">GINKA · EXTRA</text>
+          <text class="top-status">鉴赏与目录</text>
+        </div>
+        <div class="panel-main">
+          <div class="ribbon-box">
+            <image class="ribbon-bg" src="/common/ui/header_pill.png"></image>
+            <text class="ribbon-title">● EXTRA 扩展内容</text>
+          </div>
+          <div class="dialog-box" style="margin-bottom:16px;">
+            <text class="dialog-title">章节与画廊选择</text>
+            <text class="config-note">可浏览全篇章节目录试读，或鉴赏 32 组 / 134 张基础 CG 与差分。</text>
+          </div>
+          <div class="panel-btn primary-btn" onclick="openDirectory">
+            <text class="panel-btn-text">章节目录 · CHAPTER</text>
+          </div>
+          <div class="panel-btn primary-btn" onclick="openGallery">
+            <text class="panel-btn-text">CG 鉴赏 · CG GALLERY</text>
+          </div>
+          <div class="panel-btn muted-action" style="margin-top:6px;" onclick="toTitle">
+            <text class="panel-btn-text muted-txt">返回标题 · TITLE</text>
+          </div>
+        </div>
+        <div class="panel-footer-bar">
+          <text class="footer-hint">章节试读不会改变主线解锁与标题 CG 进度</text>
+        </div>
+      </div>
+    </div>
+
+    <div if="{{mode === 'directory'}}" class="full-panel">
+      <image class="panel-bg-top" src="/common/ui/panel_top.jpg"></image>
+      <image class="panel-bg-bot" src="/common/ui/panel_bot.jpg"></image>
+      <div class="panel-body">
+        <div class="panel-top-bar">
+          <text class="top-brand">GINKA · CHAPTER</text>
+          <text class="top-status">{{directoryPageLabel}}</text>
+        </div>
+        <div class="panel-main">
+          <div class="ribbon-box">
+            <image class="ribbon-bg" src="/common/ui/header_pill.png"></image>
+            <text class="ribbon-title">● {{directoryTitle}}</text>
+          </div>
+          <div class="dir-list">
+            <div for="{{directoryRows}}" tid="id" class="dir-card" onclick="pickDirectory($idx)">
+              <div class="slot-accent" style="background-color:#25c4de;"></div>
+              <div class="dir-inner">
+                <text class="dir-title">{{$item.title}}</text>
+                <text class="dir-sub">{{$item.sub}}</text>
+              </div>
+            </div>
+          </div>
+          <div class="pager-row">
+            <div class="pager-btn" onclick="previousDirectoryPage"><text class="pager-btn-text">‹ 上页</text></div>
+            <div class="pager-btn pager-btn-center" onclick="backDirectory"><text class="pager-btn-text">返回</text></div>
+            <div class="pager-btn" onclick="nextDirectoryPage"><text class="pager-btn-text">下页 ›</text></div>
+          </div>
+        </div>
+        <div class="panel-footer-bar">
+          <text class="footer-hint">章节试读不会改变主线解锁进度</text>
+        </div>
+      </div>
+    </div>
+
+    <div if="{{mode === 'gallery'}}" class="full-panel">
+      <image class="panel-bg-top" src="/common/ui/panel_top.jpg"></image>
+      <image class="panel-bg-bot" src="/common/ui/panel_bot.jpg"></image>
+      <div class="panel-body">
+        <div class="panel-top-bar">
+          <text class="top-brand">GINKA · EXTRA</text>
+          <text class="top-status">{{galleryPageLabel}}</text>
+        </div>
+        <div class="panel-main">
+          <div class="ribbon-box">
+            <image class="ribbon-bg" src="/common/ui/header_pill.png"></image>
+            <text class="ribbon-title">● CG 画廊鉴赏</text>
+          </div>
+          <div class="gallery-row">
+            <div for="{{galleryTop}}" tid="id" class="gallery-card" onclick="viewCg($item.index)">
+              <image class="gallery-thumb" src="{{$item.src}}"></image>
+              <text class="gallery-label">{{$item.label}}</text>
+            </div>
+          </div>
+          <div class="gallery-row">
+            <div for="{{galleryBottom}}" tid="id" class="gallery-card" onclick="viewCg($item.index)">
+              <image class="gallery-thumb" src="{{$item.src}}"></image>
+              <text class="gallery-label">{{$item.label}}</text>
+            </div>
+          </div>
+          <div class="pager-row">
+            <div class="pager-btn" onclick="previousGalleryPage"><text class="pager-btn-text">‹ 上页</text></div>
+            <div class="pager-btn pager-btn-center" onclick="openExtra"><text class="pager-btn-text">返回</text></div>
+            <div class="pager-btn" onclick="nextGalleryPage"><text class="pager-btn-text">下页 ›</text></div>
+          </div>
+        </div>
+        <div class="panel-footer-bar">
+          <text class="footer-hint">点击缩略图进入鉴赏 · 含全套基础差分</text>
+        </div>
+      </div>
+    </div>
+
+    <div if="{{mode === 'cg'}}" class="full-panel" onkey="cgKey">
+      <image class="panel-bg-top" src="/common/ui/panel_top.jpg"></image>
+      <image class="panel-bg-bot" src="/common/ui/panel_bot.jpg"></image>
+      <div class="panel-body">
+        <div class="panel-top-bar">
+          <text class="top-brand">GINKA · CG VIEW</text>
+          <text class="top-status">{{cgTitle}}</text>
+        </div>
+        <div class="panel-main">
+          <div class="ribbon-box">
+            <image class="ribbon-bg" src="/common/ui/header_pill.png"></image>
+            <text class="ribbon-title">● {{cgTitle}}</text>
+          </div>
+          <div class="cg-stage-row">
+            <div class="cg-frame" ontouchstart="cgTouchStart" ontouchmove="cgTouchMove" ontouchend="cgTouchEnd" ontouchcancel="cgTouchEnd" onclick="cgTap">
+              <image class="cg-image" src="{{cgSrc}}" style="width:{{cgImgW}}px;height:{{cgImgH}}px;left:{{cgImgLeft}}px;top:{{cgImgTop}}px;"></image>
+            </div>
+            <div class="cg-zoom-col">
+              <div class="cg-zoom-btn" onclick="cgZoomIn"><text class="cg-zoom-btn-txt">+</text></div>
+              <slider id="cg-zoom-slider" class="cg-zoom-slider" min="100" max="250" step="5" value="{{cgZoomPct}}" onchange="cgSliderChange"></slider>
+              <div class="cg-zoom-btn" onclick="cgZoomOut"><text class="cg-zoom-btn-txt">-</text></div>
+            </div>
+          </div>
+          <text class="panel-subtitle">{{cgLabel}}</text>
+          <div class="pager-row">
+            <div class="pager-btn" onclick="previousCg"><text class="pager-btn-text">‹ 上一组</text></div>
+            <div class="pager-btn pager-btn-center" onclick="backToGallery"><text class="pager-btn-text">返回</text></div>
+            <div class="pager-btn" onclick="nextCg"><text class="pager-btn-text">下一组 ›</text></div>
+          </div>
+        </div>
+        <div class="panel-footer-bar">
+          <text class="footer-hint">点击切差分 · 滑块缩放 · 滑动看大图</text>
+        </div>
+      </div>
+    </div>
+
+    <div if="{{mode === 'config'}}" class="full-panel">
+      <image class="panel-bg-top" src="/common/ui/panel_top.jpg"></image>
+      <image class="panel-bg-bot" src="/common/ui/panel_bot.jpg"></image>
+      <div class="panel-body">
+        <div class="panel-top-bar">
+          <text class="top-brand">GINKA · CONFIG</text>
+          <text class="top-status">RW5 EDITION</text>
+        </div>
+        <div class="panel-main">
+          <div class="ribbon-box">
+            <image class="ribbon-bg" src="/common/ui/header_pill.png"></image>
+            <text class="ribbon-title">● 阅读显示设置</text>
+          </div>
+          <div class="config-card" onclick="toggleSpeed">
+            <text class="config-card-txt">{{speedLabel}}</text>
+          </div>
+          <div class="config-card" onclick="toggleFont">
+            <text class="config-card-txt">{{fontLabel}}</text>
+          </div>
+          <div class="config-card" onclick="cycleAutoSpeed">
+            <text class="config-card-txt">{{autoSpeedLabel}}</text>
+          </div>
+          <div class="dialog-box" style="margin-top:6px;margin-bottom:14px;">
+            <text class="config-note">纯图文阅读版 · 自动播放在阅读菜单中开启。遇到分支选项时将自动暂停等待选择。</text>
+          </div>
+          <div class="panel-btn primary-btn" onclick="toTitle">
+            <text class="panel-btn-text">返回标题 · BACK</text>
+          </div>
+        </div>
+        <div class="panel-footer-bar">
+          <text class="footer-hint">设置已自动保存至本地存储</text>
+        </div>
+      </div>
+    </div>
+
+    <div if="{{mode === 'end' || mode === 'error'}}" class="full-panel">
+      <image class="panel-bg-top" src="/common/ui/panel_top.jpg"></image>
+      <image class="panel-bg-bot" src="/common/ui/panel_bot.jpg"></image>
+      <div class="panel-body">
+        <div class="panel-top-bar">
+          <text class="top-brand">GINKA · NOTICE</text>
+          <text class="top-status">{{mode === 'end' ? 'FIN' : 'INFO'}}</text>
+        </div>
+        <div class="panel-main">
+          <div class="ribbon-box">
+            <image class="ribbon-bg" src="/common/ui/header_pill.png"></image>
+            <text class="ribbon-title">● {{mode === 'end' ? endingTitle : '读取提示'}}</text>
+          </div>
+          <div class="dialog-box">
+            <text class="overwrite-detail">{{mode === 'end' ? endingDetail : errorText}}</text>
+          </div>
+          <div class="panel-btn primary-btn" onclick="toTitle">
+            <text class="panel-btn-text">返回标题 · TITLE</text>
+          </div>
+        </div>
+        <div class="panel-footer-bar">
+          <text class="footer-hint">感谢阅读《GINKA》腕表图文版</text>
+        </div>
+      </div>
+    </div>
+
+    <text if="{{loading}}" class="loading">正在读取…</text>
+  </div>
+</template>
+
+<script>
+import file from '@system.file';
+import storage from '@system.storage';
+import prompt from '@system.prompt';
+import { graph } from '../../common/graph.js';
+import { assets } from '../../common/assets.js';
+import { autoSpeeds, autoWait } from '../../common/auto-reader.js';
+import {
+  create,
+  checkpoint,
+  restore,
+  routeUnlocked,
+  enterRoute,
+  locate,
+  advance,
+  choose,
+  skipChapter,
+  previous,
+  resolveStage,
+} from '../../common/engine.js';
+
+const PREFIX = 'GINKA_RW5_';
+const FONT = 'ginkafont';
+const STORAGE_WAVE = 6;
+const MAX_CHUNK_CACHE = 2;
+const CG_FRAME_W = 338;
+const CG_FRAME_H = 248;
+const CG_BASE_W = 338;
+const CG_BASE_H = 190;
+const CG_ZOOM_MIN = 1.0;
+const CG_ZOOM_MAX = 2.5;
+
+function portraitsEqual(a, b) {
+  if (a === b) return true;
+  if (!a || !b || a.length !== b.length) return false;
+  for (let i = 0; i < a.length; i++) {
+    const x = a[i];
+    const y = b[i];
+    if (
+      x.id !== y.id ||
+      x.left !== y.left ||
+      x.top !== y.top ||
+      x.opacity !== y.opacity ||
+      x.patchLeft !== y.patchLeft ||
+      x.patchTop !== y.patchTop
+    ) {
+      return false;
+    }
+  }
+  return true;
+}
+
+function displayPreview(text, maxLen) {
+  return String(text || '').replace(/\s+/g, ' ').trim().slice(0, maxLen || 22);
+}
+
+function touchPoint(event) {
+  if (!event) return null;
+  const t = (event.touches && event.touches[0]) || (event.changedTouches && event.changedTouches[0]) || event;
+  const x = typeof t.clientX === 'number' ? t.clientX : t.pageX;
+  const y = typeof t.clientY === 'number' ? t.clientY : t.pageY;
+  return typeof x === 'number' && typeof y === 'number' ? { x, y } : null;
+}
+
+export default {
+  private: {
+    mode: 'title',
+    loading: false,
+    storageBusy: false,
+    backgroundSrc: '',
+    portraits: [],
+    speaker: '',
+    chapterLabel: '',
+    fullText: '',
+    displayText: '',
+    dialogueLines: [],
+    dialogueHeight: 156,
+    dialogueScrollable: false,
+    fontSize: 24,
+    textSpeed: 30,
+    autoEnabled: false,
+    autoSpeed: 1,
+    speedLabel: '显示速度：逐字',
+    fontLabel: '字号：标准',
+    autoLabel: '自动播放：关闭',
+    autoSpeedLabel: '自动速度：标准',
+    titleBgTop: '/common/ui/title_bg1_top.jpg',
+    titleBgBot: '/common/ui/title_bg1_bot.jpg',
+    hasAnySave: false,
+    nextUnlocked: false,
+    afterUnlocked: false,
+    nextStarted: false,
+    afterStarted: false,
+    titleMenuTop: 248,
+    titleRowH: 38,
+    titleSpriteH: 30,
+    titleNewW: 42,
+    titleNewH: 14,
+    titleWCont: 158,
+    titleWAfter: 94,
+    titleWNext: 79,
+    titleWStart: 94,
+    titleWLoad: 85,
+    titleWSystem: 116,
+    titleWExtra: 94,
+    titleWExit: 64,
+    options: [],
+    slotTitle: '',
+    slotPageLabel: '',
+    slotRows: [],
+    overwriteTitle: '',
+    overwriteDetail: '',
+    deleteTitle: '',
+    deleteDetail: '',
+    directoryTitle: '',
+    directoryPageLabel: '',
+    directoryRows: [],
+    galleryPageLabel: '',
+    galleryTop: [],
+    galleryBottom: [],
+    cgTitle: '',
+    cgSrc: '',
+    cgLabel: '',
+    cgZoom: 1,
+    cgZoomPct: 100,
+    cgImgW: 338,
+    cgImgH: 190,
+    cgImgLeft: 0,
+    cgImgTop: 29,
+    endingTitle: '',
+    endingDetail: '',
+    errorText: '',
+  },
+
+  onInit() {
+    this._alive = true;
+    this._hidden = false;
+    this._touchReading = false;
+    this._dialogueDragged = false;
+    this._dialogueTouch = null;
+    this._dialogueIgnoreUntil = 0;
+    this._focusTimer = null;
+    this._lastLongPressAt = -10000;
+    this._pendingDeleteSlot = -1;
+    this._slotTouchIndex = -1;
+    this._slotTouchStartedAt = 0;
+    this._slotTouchPos = null;
+    this._slotLongPressed = false;
+    this._slotHoldTimer = null;
+    this._typingGeneration = 0;
+    this._autoGeneration = 0;
+    this._progressBusy = false;
+    this._progressDirty = false;
+    this._progress = {};
+    this._gallery = [];
+    this._slotData = [];
+    this._chunkCache = {};
+    this._chunkOrder = [];
+    this._dialogueScrollable = false;
+    this._cgPanX = 0;
+    this._cgPanY = 0;
+    this._cgDragged = false;
+    this._cgTouch = null;
+    this._cgPanOriginX = 0;
+    this._cgPanOriginY = 0;
+    this._cgExpectedScroll = -1;
+    this._cgSyncAt = 0;
+    this.timer = null;
+    this._autoTimer = null;
+    this.sequence = 0;
+    this.slotSequence = 0;
+    this._saveCheckSeq = 0;
+    this.cachedFile = '';
+    this.frames = [];
+    this.session = create(graph, {});
+    this.resumeMode = 'play';
+    this._slotsReturnMode = 'title';
+    this.refreshSettings();
+    this.refreshProgress();
+    this.checkHasAnySave();
+
+    storage.get({
+      key: PREFIX + 'progress_v1',
+      default: '',
+      success: value => {
+        try {
+          if (value) this._progress = JSON.parse(value);
+        } catch (e) {}
+        this.refreshProgress();
+      },
+      fail: () => {},
+      complete: () => {},
+    });
+
+    storage.get({
+      key: PREFIX + 'settings_v1',
+      default: '',
+      success: value => {
+        try {
+          const s = JSON.parse(value);
+          this.fontSize = s.fontSize === 28 ? 28 : 24;
+          this.textSpeed = s.textSpeed === 0 ? 0 : 30;
+          this.autoSpeed = [0, 1, 2].indexOf(s.autoSpeed) >= 0 ? s.autoSpeed : 1;
+        } catch (e) {}
+        this.refreshSettings();
+      },
+      fail: () => {},
+      complete: () => {},
+    });
+    console.log('GINKA_RW5 init ready');
+  },
+
+  onShow() {
+    this._hidden = false;
+    this.armAuto();
+  },
+
+  onHide() {
+    this._hidden = true;
+    this._touchReading = false;
+    this.clearFocusTimer();
+    this.clearSlotHold();
+    this.clearTyping();
+    if (this.mode === 'play') {
+      this.displayText = this.fullText;
+      this.updateLines();
+    }
+  },
+
+  onDestroy() {
+    this._alive = false;
+    this.stopAuto();
+    this.clearFocusTimer();
+    this.clearSlotHold();
+    this.clearTyping();
+    this.sequence++;
+    this.slotSequence++;
+    this._saveCheckSeq++;
+    this.clearRuntimeCaches(true);
+    console.log('GINKA_RW5 destroyed');
+  },
+
+  exitApplication() {
+    if (this.loading || this.storageBusy) return;
+    this._alive = false;
+    this.stopAuto();
+    this.clearFocusTimer();
+    this.clearSlotHold();
+    this.clearTyping();
+    this.sequence++;
+    this.slotSequence++;
+    this._saveCheckSeq++;
+    this.clearRuntimeCaches(true);
+    console.log('GINKA_RW5 exit requested');
+    this.$app.exit();
+  },
+
+  clearFocusTimer() {
+    if (this._focusTimer != null) {
+      clearTimeout(this._focusTimer);
+      this._focusTimer = null;
+    }
+  },
+
+  focusElement(id) {
+    this.clearFocusTimer();
+    if (!this._alive || this._hidden || !id) return;
+    const seq = this.sequence;
+    this._focusTimer = setTimeout(() => {
+      this._focusTimer = null;
+      if (!this._alive || this._hidden || seq !== this.sequence) return;
+      try {
+        const el = this.$element(id);
+        if (el && typeof el.focus === 'function') {
+          el.focus({ focus: true });
+        }
+      } catch (e) {}
+    }, 60);
+  },
+
+  backgroundError() {
+    console.error('GINKA_RW5 image failed', this.backgroundSrc);
+  },
+
+  clearTyping() {
+    this.clearAuto();
+    this._typingGeneration = (this._typingGeneration || 0) + 1;
+    if (this.timer !== null) {
+      clearTimeout(this.timer);
+      this.timer = null;
+    }
+  },
+
+  clearAuto() {
+    if (this._autoTimer != null) clearTimeout(this._autoTimer);
+    this._autoTimer = null;
+    this._autoGeneration = (this._autoGeneration || 0) + 1;
+  },
+
+  canAuto() {
+    return (
+      this.autoEnabled &&
+      this._alive &&
+      !this._hidden &&
+      !this._touchReading &&
+      !this.loading &&
+      !this.storageBusy &&
+      this.mode === 'play' &&
+      this.timer === null &&
+      this.displayText === this.fullText
+    );
+  },
+
+  armAuto() {
+    this.clearAuto();
+    if (!this.canAuto()) return;
+    const generation = this._autoGeneration;
+    const node = this.session.node;
+    const index = this.session.index;
+    this._autoTimer = setTimeout(() => {
+      if (generation !== this._autoGeneration) return;
+      this._autoTimer = null;
+      if (!this.canAuto() || this.session.node !== node || this.session.index !== index) return;
+      this.advance();
+    }, autoWait(this.autoSpeed, this.fullText.length));
+  },
+
+  stopAuto() {
+    this.autoEnabled = false;
+    this.clearAuto();
+    this.refreshSettings();
+  },
+
+  toggleAuto() {
+    if (this.mode !== 'menu') return;
+    this.autoEnabled = !this.autoEnabled;
+    this.clearAuto();
+    this.refreshSettings();
+  },
+
+  cycleAutoSpeed() {
+    this.autoSpeed = (this.autoSpeed + 1) % 3;
+    this.refreshSettings();
+    this.persistSettings();
+  },
+
+  refreshProgress() {
+    const p = this._progress || {};
+    this.nextUnlocked = routeUnlocked(graph, 'next', p);
+    this.afterUnlocked = routeUnlocked(graph, 'after', p);
+    this.nextStarted = !!p.titleNextStarted;
+    this.afterStarted = !!p.titleAfterStarted;
+    // Title CG follows progression and remains locked on True Ending CG (title_bg3) once cleared
+    const bgKey = (p.next || p.after || this.afterUnlocked)
+      ? 'title_bg3'
+      : (p.start || this.nextUnlocked)
+        ? 'title_bg2'
+        : 'title_bg1';
+    this.titleBgTop = '/common/ui/' + bgKey + '_top.jpg';
+    this.titleBgBot = '/common/ui/' + bgKey + '_bot.jpg';
+    const extraCount = (this.nextUnlocked ? 1 : 0) + (this.afterUnlocked ? 1 : 0);
+    if (extraCount === 0) {
+      this.titleMenuTop = 248;
+      this.titleRowH = 38;
+      this.titleSpriteH = 30;
+      this.titleNewW = 42;
+      this.titleNewH = 14;
+      this.titleWCont = 158;
+      this.titleWAfter = 94;
+      this.titleWNext = 79;
+      this.titleWStart = 94;
+      this.titleWLoad = 85;
+      this.titleWSystem = 116;
+      this.titleWExtra = 94;
+      this.titleWExit = 64;
+    } else if (extraCount === 1) {
+      this.titleMenuTop = 236;
+      this.titleRowH = 34;
+      this.titleSpriteH = 27;
+      this.titleNewW = 40;
+      this.titleNewH = 14;
+      this.titleWCont = 142;
+      this.titleWAfter = 85;
+      this.titleWNext = 71;
+      this.titleWStart = 85;
+      this.titleWLoad = 76;
+      this.titleWSystem = 104;
+      this.titleWExtra = 84;
+      this.titleWExit = 57;
+    } else {
+      this.titleMenuTop = 228;
+      this.titleRowH = 30;
+      this.titleSpriteH = 25;
+      this.titleNewW = 38;
+      this.titleNewH = 13;
+      this.titleWCont = 132;
+      this.titleWAfter = 79;
+      this.titleWNext = 66;
+      this.titleWStart = 79;
+      this.titleWLoad = 71;
+      this.titleWSystem = 96;
+      this.titleWExtra = 78;
+      this.titleWExit = 53;
+    }
+  },
+
+  syncProgress() {
+    if (!this.session || this.session.progression === 'chapter') return;
+    const sp = this.session.progress;
+    if (!sp) return;
+    const prev = this._progress || {};
+    let changed = false;
+    for (const k in sp) {
+      if (sp[k] && prev[k] !== sp[k]) {
+        changed = true;
+        break;
+      }
+    }
+    if (!changed) return;
+    const next = Object.assign({}, prev);
+    for (const k in sp) {
+      if (sp[k]) next[k] = sp[k];
+    }
+    this._progress = next;
+    this.session.progress = Object.assign({}, next);
+    this._progressDirty = true;
+    this.refreshProgress();
+    this.writeProgress();
+  },
+
+  writeProgress() {
+    if (this._progressBusy || !this._progressDirty) return;
+    this._progressBusy = true;
+    this._progressDirty = false;
+    storage.set({
+      key: PREFIX + 'progress_v1',
+      value: JSON.stringify(this._progress),
+      success: () => {
+        this._progressBusy = false;
+        this.writeProgress();
+      },
+      fail: () => {
+        this._progressBusy = false;
+        this._progressDirty = true;
+      },
+      complete: () => {},
+    });
+  },
+
+  clearRuntimeCaches(clearSlots) {
+    this._chunkCache = {};
+    this._chunkOrder = [];
+    this.cachedFile = '';
+    this.frames = [];
+    this._layoutText = '';
+    this._dialogueLayout = [];
+    this._dialogueScrollable = false;
+    this.dialogueLines = [];
+    this.fullText = '';
+    this.displayText = '';
+    this.speaker = '';
+    this.options = [];
+    this.backgroundSrc = '';
+    this.portraits = [];
+    this._gallery = [];
+    this.galleryTop = [];
+    this.galleryBottom = [];
+    this.cgSrc = '';
+    this.directoryRows = [];
+    if (clearSlots !== false) {
+      this._slotData = [];
+      this.slotRows = [];
+      this._pendingSave = null;
+    }
+  },
+
+  releaseUiLists() {
+    this._gallery = [];
+    this.galleryTop = [];
+    this.galleryBottom = [];
+    this.cgSrc = '';
+    this.directoryRows = [];
+    this._slotData = [];
+    this.slotRows = [];
+    this._pendingSave = null;
+  },
+
+  storeChunk(fileKey, frames) {
+    if (!this._chunkCache) this._chunkCache = {};
+    if (!this._chunkOrder) this._chunkOrder = [];
+    const existingIdx = this._chunkOrder.indexOf(fileKey);
+    if (existingIdx >= 0) this._chunkOrder.splice(existingIdx, 1);
+    this._chunkCache[fileKey] = frames;
+    this._chunkOrder.push(fileKey);
+    while (this._chunkOrder.length > MAX_CHUNK_CACHE) {
+      const evicted = this._chunkOrder.shift();
+      if (evicted !== fileKey) delete this._chunkCache[evicted];
+    }
+    this.cachedFile = fileKey;
+    this.frames = frames;
+  },
+
+  startNew() {
+    if (this.loading || this.storageBusy) return;
+    this.releaseUiLists();
+    this.session = create(graph, this._progress, 'start');
+    this.session.progression = 'story';
+    this.cachedFile = '';
+    this.renderFrame();
+  },
+
+  startNext() {
+    if (this.loading || this.storageBusy) return;
+    const st = create(graph, this._progress, 'start');
+    if (!enterRoute(graph, st, 'next')) {
+      this.toast('通关本篇后解锁 NEXT');
+      return;
+    }
+    this.releaseUiLists();
+    if (!this._progress.titleNextStarted) {
+      this._progress = Object.assign({}, this._progress, { titleNextStarted: true });
+      st.progress = Object.assign({}, st.progress, { titleNextStarted: true });
+      this._progressDirty = true;
+      this.refreshProgress();
+      this.writeProgress();
+    }
+    st.progression = 'story';
+    this.session = st;
+    this.cachedFile = '';
+    this.renderFrame();
+  },
+
+  startAfter() {
+    if (this.loading || this.storageBusy) return;
+    const st = create(graph, this._progress, 'start');
+    if (!enterRoute(graph, st, 'after')) {
+      this.toast('通关 NEXT 后解锁 AFTER');
+      return;
+    }
+    this.releaseUiLists();
+    if (!this._progress.titleAfterStarted) {
+      this._progress = Object.assign({}, this._progress, { titleAfterStarted: true });
+      st.progress = Object.assign({}, st.progress, { titleAfterStarted: true });
+      this._progressDirty = true;
+      this.refreshProgress();
+      this.writeProgress();
+    }
+    st.progression = 'story';
+    this.session = st;
+    this.cachedFile = '';
+    this.renderFrame();
+  },
+
+  renderFrame() {
+    this.clearTyping();
+    let location;
+    try {
+      location = locate(graph, this.session);
+      this.syncProgress();
+    } catch (e) {
+      this.fail(e.message);
+      return;
+    }
+    if (location.type === 'choice') {
+      const showChoice = frame => {
+        if (frame) this.applyStage(frame);
+        if (location.title) this.chapterLabel = location.title;
+        this.loading = false;
+        this.options = location.items.map((x, i) => ({
+          id: this.session.node + ':' + i + ':' + x.text,
+          text: x.text,
+        }));
+        this.mode = 'choice';
+      };
+      if (location.stageFile) {
+        this.loadStoryChunk(location.stageFile, frames => showChoice(frames[location.stageIndex]));
+      } else {
+        showChoice(null);
+      }
+      return;
+    }
+    if (location.type === 'end') {
+      this.stopAuto();
+      this.loading = false;
+      this.mode = 'end';
+      this.endingTitle = (this.chapterLabel || '故事') + ' · 完结';
+      if (this.session.progression === 'chapter') {
+        this.endingDetail = '章节试读结束（目录试读不会解锁新篇章进度）。';
+      } else {
+        this.endingDetail = '本阶段剧情已阅读完毕。已解锁的后续篇章可在标题页进入。';
+      }
+      this._chunkCache = {};
+      this._chunkOrder = [];
+      this.cachedFile = '';
+      this.frames = [];
+      this.backgroundSrc = '';
+      this.portraits = [];
+      return;
+    }
+    this.chapterLabel = location.title || '';
+    this.loadStoryChunk(location.file, frames => this.showFrame(frames[location.index]));
+  },
+
+  loadStoryChunk(fileName, onLoaded) {
+    if (this._chunkCache && this._chunkCache[fileName]) {
+      const cached = this._chunkCache[fileName];
+      this.storeChunk(fileName, cached);
+      onLoaded(cached);
+      return;
+    }
+    if (this.cachedFile === fileName && this.frames && this.frames.length) {
+      onLoaded(this.frames);
+      return;
+    }
+    this.loading = true;
+    const token = ++this.sequence;
+    file.readText({
+      uri: '/common/story/' + fileName,
+      success: data => {
+        if (token !== this.sequence) return;
+        try {
+          const frames = JSON.parse(data.text);
+          if (!Array.isArray(frames) || !frames.length) throw Error('剧情数据格式错误');
+          this.storeChunk(fileName, frames);
+          onLoaded(frames);
+        } catch (e) {
+          this.fail(e.message);
+        }
+      },
+      fail: (data, code) => {
+        if (token === this.sequence) this.fail('剧情读取失败：' + code);
+      },
+      complete: () => {},
+    });
+  },
+
+  applyStage(frame) {
+    const stage = resolveStage(assets, frame);
+    if (this.backgroundSrc !== stage.background) {
+      this.backgroundSrc = stage.background;
+    }
+    if (!portraitsEqual(this.portraits, stage.portraits)) {
+      this.portraits = stage.portraits;
+    }
+  },
+
+  showFrame(frame) {
+    if (!frame) {
+      this.fail('剧情下标无效');
+      return;
+    }
+    const wasPlay = this.mode === 'play';
+    this.loading = false;
+    this.mode = 'play';
+    if (!wasPlay) {
+      this.focusElement('dialogue-scroll');
+    }
+    this.applyStage(frame);
+    const nextSpeaker = frame.s || '';
+    if (this.speaker !== nextSpeaker) {
+      this.speaker = nextSpeaker;
+    }
+    this.fullText = frame.t || '';
+    this.session.preview = this.fullText.slice(0, 80);
+    const prevScrollable = !!this._dialogueScrollable;
+    this.displayText = '';
+    this._touchReading = false;
+    this._dialogueDragged = false;
+    this._dialogueTouch = null;
+    this._dialogueIgnoreUntil = 0;
+    const speed = this.textSpeed;
+    if (!this.fullText || speed === 0 || this._hidden) {
+      this.displayText = this.fullText;
+      this.updateLines();
+      if (prevScrollable || this._dialogueScrollable) {
+        this._dialogueResetAt = Date.now();
+        try {
+          this.$element('dialogue-scroll').scrollTo({ left: 0, top: 0, behavior: 'instant' });
+        } catch (e) {}
+      }
+      this.armAuto();
+      return;
+    }
+    const generation = this._typingGeneration;
+    let scrolledReset = false;
+    const tick = () => {
+      if (!this._alive || this._hidden || this.mode !== 'play' || generation !== this._typingGeneration) return;
+      const cp = this.fullText.codePointAt(this.displayText.length);
+      const step = cp > 65535 ? 2 : 1;
+      this.displayText = this.fullText.slice(0, this.displayText.length + step);
+      this.updateLines();
+      if (!scrolledReset) {
+        scrolledReset = true;
+        if (prevScrollable || this._dialogueScrollable) {
+          this._dialogueResetAt = Date.now();
+          try {
+            this.$element('dialogue-scroll').scrollTo({ left: 0, top: 0, behavior: 'instant' });
+          } catch (e) {}
+        }
+      }
+      if (this.displayText.length < this.fullText.length) {
+        this.timer = setTimeout(tick, speed);
+      } else {
+        this.timer = null;
+        this.armAuto();
+      }
+    };
+    tick();
+  },
+
+  advance() {
+    if (this.loading || this.mode !== 'play') return;
+    this.clearAuto();
+    if (this.timer !== null) {
+      this.clearTyping();
+      this.displayText = this.fullText;
+      this.updateLines();
+      this.armAuto();
+      return;
+    }
+    try {
+      advance(graph, this.session);
+      this.renderFrame();
+    } catch (e) {
+      this.fail(e.message);
+    }
+  },
+
+  dialogueTouchStart(event) {
+    this._touchReading = true;
+    this.clearAuto();
+    const touch = event.touches && event.touches[0];
+    this._dialogueDragged = false;
+    this._dialogueTouch = touch ? { x: touch.clientX, y: touch.clientY } : null;
+  },
+
+  dialogueTouchMove(event) {
+    const touch = event.touches && event.touches[0];
+    const start = this._dialogueTouch;
+    if (touch && start && (Math.abs(touch.clientX - start.x) > 10 || Math.abs(touch.clientY - start.y) > 10)) {
+      this._dialogueDragged = true;
+    }
+  },
+
+  dialogueTouchEnd() {
+    this._touchReading = false;
+    this.armAuto();
+  },
+
+  dialogueTap() {
+    if (this._dialogueDragged || Date.now() < (this._dialogueIgnoreUntil || 0)) return;
+    this.advance();
+  },
+
+  dialogueScrolled() {
+    if (Date.now() - (this._dialogueResetAt || 0) < 120) return;
+    this._dialogueDragged = true;
+    this._dialogueIgnoreUntil = Date.now() + 450;
+    if (this.mode === 'play') this.armAuto();
+  },
+
+  dialogueScrollBy(delta) {
+    if (this.mode !== 'play') return;
+    this._dialogueIgnoreUntil = Date.now() + 250;
+    try {
+      this.$element('dialogue-scroll').scrollBy({ left: 0, top: delta, behavior: 'smooth' });
+    } catch (e) {}
+    this.armAuto();
+  },
+
+  dialogueScrollUp() {
+    this.dialogueScrollBy(-68);
+  },
+
+  dialogueScrollDown() {
+    this.dialogueScrollBy(68);
+  },
+
+  dialogueKey(event) {
+    if (this.mode !== 'play' || !event) return;
+    const code = event.code !== undefined ? event.code : event.keyCode;
+    if (code === 19 || code === 24 || code === 'ArrowUp' || code === 'VolumeUp') {
+      this.dialogueScrollBy(-48);
+    } else if (code === 20 || code === 25 || code === 'ArrowDown' || code === 'VolumeDown') {
+      this.dialogueScrollBy(48);
+    }
+  },
+
+  pick(index) {
+    if (this.loading || this.mode !== 'choice') return;
+    try {
+      choose(graph, this.session, index);
+      this.renderFrame();
+    } catch (e) {
+      this.fail(e.message);
+    }
+  },
+
+  goBack() {
+    if (this.loading || this.mode !== 'play') return;
+    this.stopAuto();
+    try {
+      previous(graph, this.session);
+      this.renderFrame();
+    } catch (e) {
+      this.fail(e.message);
+    }
+  },
+
+  showMenu() {
+    if (this.loading || !this.session) return;
+    this.clearTyping();
+    this.displayText = this.fullText;
+    this.updateLines();
+    this.resumeMode = this.mode;
+    this.mode = 'menu';
+    this.refreshSettings();
+  },
+
+  resume() {
+    this.mode = this.resumeMode || 'play';
+    if (this.mode === 'play') {
+      this.focusElement('dialogue-scroll');
+    }
+    this.armAuto();
+  },
+
+  goNextChapter() {
+    if (this.loading || this.mode !== 'menu') return;
+    try {
+      skipChapter(graph, this.session);
+      this.renderFrame();
+    } catch (e) {
+      this.fail(e.message);
+    }
+  },
+
+  swipe(event) {
+    if (this.mode === 'play' && event.direction === 'left') this.advance();
+  },
+
+  checkHasAnySave() {
+    const token = ++this._saveCheckSeq;
+    let nextIndex = 0;
+    let active = 0;
+    let found = false;
+    let pumping = false;
+    const pump = () => {
+      if (pumping) return;
+      pumping = true;
+      while (!found && active < STORAGE_WAVE && nextIndex < 30 && this._alive && token === this._saveCheckSeq) {
+        const idx = nextIndex++;
+        active++;
+        storage.get({
+          key: PREFIX + 'slot_v1_' + (idx + 1),
+          default: '',
+          success: data => {
+            active--;
+            if (!this._alive || token !== this._saveCheckSeq || found) return;
+            if (data) {
+              found = true;
+              this.hasAnySave = true;
+              return;
+            }
+            if (!pumping) pump();
+          },
+          fail: () => {
+            active--;
+            if (!this._alive || token !== this._saveCheckSeq || found) return;
+            if (!pumping) pump();
+          },
+          complete: () => {},
+        });
+      }
+      pumping = false;
+      if (!found && active === 0 && nextIndex >= 30 && this._alive && token === this._saveCheckSeq) {
+        this.hasAnySave = false;
+      }
+    };
+    pump();
+  },
+
+  continueGame() {
+    if (!this.hasAnySave) {
+      this.toast('暂无存档进度');
+      return;
+    }
+    this.openSlots('load');
+  },
+  saveGame() {
+    this.openSlots('save');
+  },
+  loadGame() {
+    this.openSlots('load');
+  },
+
+  openSlots(role) {
+    if (this.loading || this.storageBusy) return;
+    this.clearTyping();
+    this._slotRole = role;
+    this._slotsReturnMode = this.mode === 'menu' ? (this.resumeMode || 'play') : this.mode;
+    this.mode = 'slots';
+    this.slotPage = 0;
+    this.slotTitle = role === 'save' ? '选择保存栏位' : '选择读取栏位';
+    this._slotData = new Array(30);
+    this.loading = true;
+    const token = ++this.slotSequence;
+    let nextIndex = 0;
+    let active = 0;
+    let done = false;
+    let pumping = false;
+    const finish = () => {
+      if (done || token !== this.slotSequence) return;
+      done = true;
+      this.loading = false;
+      this.hasAnySave = this._slotData.some(Boolean);
+      this.refreshSlots();
+    };
+    const pump = () => {
+      if (pumping) return;
+      pumping = true;
+      while (!done && active < STORAGE_WAVE && nextIndex < 30 && token === this.slotSequence) {
+        const idx = nextIndex++;
+        active++;
+        storage.get({
+          key: PREFIX + 'slot_v1_' + (idx + 1),
+          default: '',
+          success: data => {
+            active--;
+            if (done || token !== this.slotSequence) return;
+            try {
+              this._slotData[idx] = data ? JSON.parse(data) : null;
+            } catch (e) {
+              this._slotData[idx] = { invalid: true };
+            }
+            if (!pumping) pump();
+          },
+          fail: () => {
+            active--;
+            if (done || token !== this.slotSequence) return;
+            this._slotData[idx] = null;
+            if (!pumping) pump();
+          },
+          complete: () => {},
+        });
+      }
+      pumping = false;
+      if (!done && active === 0 && nextIndex >= 30) finish();
+    };
+    pump();
+  },
+
+  refreshSlots() {
+    this.slotPageLabel = '30 栏 · ' + (this.slotPage + 1) + ' / 8 页';
+    this.slotRows = [];
+    const end = Math.min(30, this.slotPage * 4 + 4);
+    for (let i = this.slotPage * 4; i < end; i++) {
+      const saved = this._slotData[i];
+      const node = saved && saved.state && graph.nodes[saved.state.node];
+      const meta = !saved ? '空栏位' : node ? node.title : '存档无法读取';
+      const preview = saved && saved.state ? displayPreview(saved.state.preview || '章节开头', 18) : '';
+      this.slotRows.push({
+        id: 'slot:' + i + ':' + meta + ':' + preview,
+        index: i,
+        title: 'NO.' + ('0' + (i + 1)).slice(-2),
+        occupied: !!saved,
+        meta,
+        preview,
+      });
+    }
+  },
+
+  previousSlotPage() {
+    if (!this.loading && this.slotPage > 0) {
+      this.slotPage--;
+      this.refreshSlots();
+    }
+  },
+
+  nextSlotPage() {
+    if (!this.loading && this.slotPage < 7) {
+      this.slotPage++;
+      this.refreshSlots();
+    }
+  },
+
+  closeSlots() {
+    if (this.storageBusy) return;
+    this.clearSlotHold();
+    this._slotTouchIndex = -1;
+    this._slotTouchPos = null;
+    this._slotLongPressed = false;
+    this.slotSequence++;
+    this.loading = false;
+    this._slotData = [];
+    this.slotRows = [];
+    this._pendingSave = null;
+    this.mode = this._slotsReturnMode || 'title';
+    this.armAuto();
+  },
+
+  clearSlotHold() {
+    if (this._slotHoldTimer) {
+      clearTimeout(this._slotHoldTimer);
+      this._slotHoldTimer = null;
+    }
+  },
+
+  beginSlotTouch(index, event) {
+    if (this.loading || this.storageBusy || this.mode !== 'slots') return;
+    this.clearSlotHold();
+    this._slotTouchIndex = index;
+    this._slotTouchStartedAt = Date.now();
+    this._slotLongPressed = false;
+    this._slotTouchPos = touchPoint(event);
+    const seq = this.slotSequence;
+    this._slotHoldTimer = setTimeout(() => {
+      this._slotHoldTimer = null;
+      if (!this._alive || this._hidden || this.mode !== 'slots' || this.slotSequence !== seq) return;
+      if (this._slotTouchIndex !== index) return;
+      this._slotLongPressed = true;
+      this.longPressSlot(index);
+    }, 600);
+  },
+
+  moveSlotTouch(event) {
+    if (!this._slotTouchPos) return;
+    const pos = touchPoint(event);
+    if (!pos) return;
+    if (Math.abs(pos.x - this._slotTouchPos.x) > 14 || Math.abs(pos.y - this._slotTouchPos.y) > 14) {
+      this._slotTouchIndex = -1;
+      this._slotTouchPos = null;
+      this.clearSlotHold();
+    }
+  },
+
+  selectSlot(index) {
+    if (this.loading || this.storageBusy || this.mode !== 'slots') return;
+    const heldLong =
+      this._slotTouchIndex === index &&
+      Date.now() - (this._slotTouchStartedAt || 0) >= 550;
+    const firedByTimer = this._slotLongPressed;
+    this.clearSlotHold();
+    this._slotTouchIndex = -1;
+    this._slotTouchPos = null;
+    this._slotLongPressed = false;
+    if (firedByTimer || Date.now() - (this._lastLongPressAt || 0) < 600) return;
+    if (heldLong) {
+      this.longPressSlot(index);
+      return;
+    }
+    const saved = this._slotData[index];
+    if (this._slotRole === 'load') {
+      if (!saved) {
+        this.toast('此栏位尚未保存');
+        return;
+      }
+      try {
+        this.session = restore(graph, saved.state);
+        if (this.session.progression !== 'chapter') {
+          this.session.progress = Object.assign({}, this.session.progress, this._progress);
+        }
+        this._slotData = [];
+        this.slotRows = [];
+        this._pendingSave = null;
+        this.slotSequence++;
+        this.renderFrame();
+      } catch (e) {
+        this.toast('此存档无法读取');
+      }
+      return;
+    }
+    this._pendingSlot = index;
+    this._pendingSave = { version: 1, state: checkpoint(this.session), savedAt: Date.now() };
+    if (saved) {
+      this.overwriteTitle = '覆盖存档 ' + ('0' + (index + 1)).slice(-2) + '？';
+      this.overwriteDetail = displayPreview((saved.state && saved.state.preview) || '已有进度', 42);
+      this.mode = 'overwrite';
+      return;
+    }
+    this.commitSlot();
+  },
+
+  longPressSlot(index) {
+    if (this.loading || this.storageBusy || this.mode !== 'slots') return;
+    this.clearSlotHold();
+    this._slotTouchIndex = -1;
+    this._slotTouchPos = null;
+    this._lastLongPressAt = Date.now();
+    const saved = this._slotData[index];
+    if (!saved) {
+      this.toast('空栏位无需删除');
+      return;
+    }
+    const node = saved.state && graph.nodes[saved.state.node];
+    const chapter = node ? node.title : '已有存档进度';
+    const preview = saved.state && saved.state.preview ? displayPreview(saved.state.preview, 34) : '';
+    this._pendingDeleteSlot = index;
+    this.deleteTitle = '删除存档 ' + ('0' + (index + 1)).slice(-2) + '？';
+    this.deleteDetail = preview ? chapter + ' · ' + preview : chapter;
+    this.mode = 'delete';
+  },
+
+  confirmDelete() {
+    if (this.storageBusy) return;
+    const index = this._pendingDeleteSlot;
+    if (typeof index !== 'number' || index < 0 || index >= 30) {
+      this.mode = 'slots';
+      return;
+    }
+    this.storageBusy = true;
+    this.loading = true;
+    const key = PREFIX + 'slot_v1_' + (index + 1);
+    const finishDelete = () => {
+      this._slotData[index] = null;
+      this._pendingDeleteSlot = -1;
+      this.hasAnySave = this._slotData.some(Boolean);
+      this.storageBusy = false;
+      this.loading = false;
+      this.mode = 'slots';
+      this.refreshSlots();
+      this.toast('已删除存档 ' + ('0' + (index + 1)).slice(-2));
+    };
+    const fallbackClear = () => {
+      storage.set({
+        key,
+        value: '',
+        success: finishDelete,
+        fail: () => {
+          this.storageBusy = false;
+          this.loading = false;
+          this.toast('删除失败，请重试');
+        },
+        complete: () => {},
+      });
+    };
+    if (typeof storage.delete === 'function') {
+      storage.delete({
+        key,
+        success: finishDelete,
+        fail: fallbackClear,
+        complete: () => {},
+      });
+    } else {
+      fallbackClear();
+    }
+  },
+
+  cancelDelete() {
+    if (!this.storageBusy) this.mode = 'slots';
+  },
+
+  confirmOverwrite() {
+    this.commitSlot();
+  },
+
+  cancelOverwrite() {
+    if (!this.storageBusy) this.mode = 'slots';
+  },
+
+  commitSlot() {
+    if (this.storageBusy) return;
+    this.storageBusy = true;
+    this.loading = true;
+    const index = this._pendingSlot;
+    storage.set({
+      key: PREFIX + 'slot_v1_' + (index + 1),
+      value: JSON.stringify(this._pendingSave),
+      success: () => {
+        this.hasAnySave = true;
+        this.storageBusy = false;
+        this.loading = false;
+        this._slotData = [];
+        this.slotRows = [];
+        this._pendingSave = null;
+        this.mode = this._slotsReturnMode || 'play';
+        this.toast('已保存到存档 ' + ('0' + (index + 1)).slice(-2));
+        this.armAuto();
+      },
+      fail: () => {
+        this.storageBusy = false;
+        this.loading = false;
+        this.toast('保存失败，请重试');
+      },
+      complete: () => {},
+    });
+  },
+
+  openDirectory() {
+    this._directoryRoute = '';
+    this._directoryPage = 0;
+    this.mode = 'directory';
+    this.refreshDirectory();
+  },
+
+  refreshDirectory() {
+    const routes = [
+      ['start', '本篇剧情', 'scn000 – scn015'],
+      ['next', 'NEXT 篇章', 'scn101 – scn114'],
+      ['bad', '分支结局', 'scn901 – scn904'],
+      ['after', 'AFTER', 'after'],
+    ];
+    const all = this._directoryRoute
+      ? graph.chapters
+          .filter(x => x.route === this._directoryRoute)
+          .map(x => ({ title: x.title || x.script, sub: x.script, node: x.node }))
+      : routes.map(r => ({ title: r[1], sub: r[2], route: r[0] }));
+    this.directoryTitle = this._directoryRoute ? '章节选择' : '篇章选择';
+    const pages = Math.max(1, Math.ceil(all.length / 4));
+    this._directoryPage = Math.max(0, Math.min(pages - 1, this._directoryPage));
+    this.directoryRows = all
+      .slice(this._directoryPage * 4, this._directoryPage * 4 + 4)
+      .map((x, i) =>
+        Object.assign({}, x, {
+          id: (this._directoryRoute || 'routes') + ':' + this._directoryPage + ':' + i + ':' + x.title,
+        })
+      );
+    this.directoryPageLabel = '第 ' + (this._directoryPage + 1) + ' / ' + pages + ' 页';
+  },
+
+  pickDirectory(index) {
+    const item = this.directoryRows[index];
+    if (!item) return;
+    if (item.route) {
+      this._directoryRoute = item.route;
+      this._directoryPage = 0;
+      this.refreshDirectory();
+      return;
+    }
+    this.releaseUiLists();
+    this.session = create(graph, this._progress, 'start');
+    this.session.node = item.node;
+    this.session.index = 0;
+    this.session.progression = 'chapter';
+    this.cachedFile = '';
+    this.renderFrame();
+  },
+
+  previousDirectoryPage() {
+    if (this._directoryPage > 0) {
+      this._directoryPage--;
+      this.refreshDirectory();
+    }
+  },
+
+  nextDirectoryPage() {
+    this._directoryPage++;
+    this.refreshDirectory();
+  },
+
+  openExtra() {
+    if (this.loading || this.storageBusy) return;
+    this.mode = 'extra';
+  },
+
+  backDirectory() {
+    if (this._directoryRoute) {
+      this._directoryRoute = '';
+      this._directoryPage = 0;
+      this.refreshDirectory();
+    } else {
+      this.openExtra();
+    }
+  },
+
+  openGallery() {
+    if (this.loading) return;
+    this.mode = 'gallery';
+    if (this._gallery.length) {
+      this.refreshGallery();
+      return;
+    }
+    this.loading = true;
+    const token = ++this.sequence;
+    file.readText({
+      uri: '/common/gallery.txt',
+      success: data => {
+        if (token !== this.sequence) return;
+        try {
+          this._gallery = JSON.parse(data.text);
+          this.galleryPage = 0;
+          this.loading = false;
+          this.refreshGallery();
+        } catch (e) {
+          this.fail('CG目录读取失败');
+        }
+      },
+      fail: () => {
+        if (token === this.sequence) this.fail('CG目录读取失败');
+      },
+      complete: () => {},
+    });
+  },
+
+  refreshGallery() {
+    const rows = this._gallery.slice(this.galleryPage * 4, this.galleryPage * 4 + 4).map((x, i) => ({
+      id: 'cg:' + this.galleryPage + ':' + i + ':' + x.label,
+      src: x.variants[0],
+      index: this.galleryPage * 4 + i,
+      label: x.label + ' (' + x.variants.length + ')',
+    }));
+    this.galleryTop = rows.slice(0, 2);
+    this.galleryBottom = rows.slice(2);
+    this.galleryPageLabel =
+      this._gallery.length + ' 组 · ' + (this.galleryPage + 1) + ' / ' + Math.ceil(this._gallery.length / 4) + ' 页';
+  },
+
+  previousGalleryPage() {
+    if (this.galleryPage > 0) {
+      this.galleryPage--;
+      this.refreshGallery();
+    }
+  },
+
+  nextGalleryPage() {
+    if (this.galleryPage < Math.ceil(this._gallery.length / 4) - 1) {
+      this.galleryPage++;
+      this.refreshGallery();
+    }
+  },
+
+  viewCg(index) {
+    if (this.loading) return;
+    this.cgIndex = index;
+    this.cgVariant = 0;
+    this.cgZoom = 1;
+    this.cgZoomPct = 100;
+    this._cgPanX = 0;
+    this._cgPanY = 0;
+    this._cgDragged = false;
+    this._cgTouch = null;
+    this.mode = 'cg';
+    this.renderCg(true);
+    this.focusElement('cg-zoom-slider');
+  },
+
+  applyCgViewport(syncScroll) {
+    const z = Math.max(CG_ZOOM_MIN, Math.min(CG_ZOOM_MAX, Math.round(this.cgZoom * 100) / 100));
+    this.cgZoom = z;
+    this.cgZoomPct = Math.round(z * 100);
+    const w = Math.round(CG_BASE_W * z);
+    const h = Math.round(CG_BASE_H * z);
+    const maxPanX = Math.max(0, (w - CG_FRAME_W) / 2);
+    const maxPanY = Math.max(0, (h - CG_FRAME_H) / 2);
+    this._cgPanX = Math.max(-maxPanX, Math.min(maxPanX, this._cgPanX || 0));
+    this._cgPanY = Math.max(-maxPanY, Math.min(maxPanY, this._cgPanY || 0));
+    this.cgImgW = w;
+    this.cgImgH = h;
+    this.cgImgLeft = Math.round((CG_FRAME_W - w) / 2 + this._cgPanX);
+    this.cgImgTop = Math.round((CG_FRAME_H - h) / 2 + this._cgPanY);
+    const group = this._gallery && this._gallery[this.cgIndex];
+    if (group) {
+      const zoomTxt = z <= 1.01 ? '1.0x' : z.toFixed(2).replace(/0$/, '') + 'x';
+      this.cgLabel =
+        this.cgVariant + 1 + ' / ' + group.variants.length + ' · ' + zoomTxt + (z > 1.01 ? ' · 滑动查看' : ' · 滑块缩放');
+    }
+    if (syncScroll) {
+      this.focusElement('cg-zoom-slider');
+    }
+  },
+
+  renderCg(syncScroll) {
+    const group = this._gallery[this.cgIndex];
+    this.cgTitle = group.label;
+    this.cgSrc = group.variants[this.cgVariant];
+    this.applyCgViewport(!!syncScroll);
+  },
+
+  setCgZoom(nextZoom, syncScroll) {
+    const prev = this.cgZoom || 1;
+    const z = Math.max(CG_ZOOM_MIN, Math.min(CG_ZOOM_MAX, Math.round(nextZoom * 100) / 100));
+    if (prev > 0 && z !== prev) {
+      const ratio = z / prev;
+      this._cgPanX = (this._cgPanX || 0) * ratio;
+      this._cgPanY = (this._cgPanY || 0) * ratio;
+    }
+    this.cgZoom = z;
+    this.applyCgViewport(syncScroll);
+  },
+
+  cgZoomIn() {
+    if (this.mode !== 'cg') return;
+    this.setCgZoom((this.cgZoom || 1) + 0.25, true);
+  },
+
+  cgZoomOut() {
+    if (this.mode !== 'cg') return;
+    this.setCgZoom((this.cgZoom || 1) - 0.25, true);
+  },
+
+  cgSliderChange(event) {
+    if (this.mode !== 'cg' || !event) return;
+    const raw = event.progress !== undefined ? event.progress : event.value;
+    const pct = Number(raw);
+    if (!Number.isFinite(pct)) return;
+    const clamped = Math.max(100, Math.min(250, Math.round(pct)));
+    if (clamped === Math.round((this.cgZoom || 1) * 100)) return;
+    this.setCgZoom(clamped / 100, false);
+  },
+
+  cgKey(event) {
+    if (this.mode !== 'cg' || !event) return;
+    const code = event.code !== undefined ? event.code : event.keyCode;
+    if (code === 19 || code === 24 || code === 'ArrowUp' || code === 'VolumeUp') {
+      this.cgZoomIn();
+    } else if (code === 20 || code === 25 || code === 'ArrowDown' || code === 'VolumeDown') {
+      this.cgZoomOut();
+    }
+  },
+
+  cgTouchStart(event) {
+    this._cgDragged = false;
+    const pt = touchPoint(event);
+    this._cgTouch = pt;
+    this._cgPanOriginX = this._cgPanX || 0;
+    this._cgPanOriginY = this._cgPanY || 0;
+  },
+
+  cgTouchMove(event) {
+    const pt = touchPoint(event);
+    if (!pt || !this._cgTouch) return;
+    const dx = pt.x - this._cgTouch.x;
+    const dy = pt.y - this._cgTouch.y;
+    if (Math.abs(dx) > 6 || Math.abs(dy) > 6) {
+      this._cgDragged = true;
+    }
+    if (this.cgZoom > 1.01 && this._cgDragged) {
+      this._cgPanX = this._cgPanOriginX + dx;
+      this._cgPanY = this._cgPanOriginY + dy;
+      this.applyCgViewport(false);
+    }
+  },
+
+  cgTouchEnd() {
+    this._cgTouch = null;
+  },
+
+  cgTap() {
+    if (this._cgDragged) {
+      this._cgDragged = false;
+      return;
+    }
+    this.cycleCg();
+  },
+
+  cycleCg() {
+    const group = this._gallery[this.cgIndex];
+    this.cgVariant = (this.cgVariant + 1) % group.variants.length;
+    this.renderCg(false);
+  },
+
+  previousCg() {
+    if (this.cgIndex > 0) this.viewCg(this.cgIndex - 1);
+  },
+
+  nextCg() {
+    if (this.cgIndex < this._gallery.length - 1) this.viewCg(this.cgIndex + 1);
+  },
+
+  backToGallery() {
+    this.galleryPage = Math.floor(this.cgIndex / 4);
+    this.mode = 'gallery';
+    this.refreshGallery();
+  },
+
+  openConfig() {
+    this.mode = 'config';
+    this.refreshSettings();
+  },
+
+  refreshSettings() {
+    this.speedLabel = this.textSpeed === 0 ? '显示速度：即时' : '显示速度：逐字';
+    this.fontLabel = this.fontSize === 28 ? '字号：大 (28px)' : '字号：标准 (24px)';
+    this.autoLabel = '自动播放：' + (this.autoEnabled ? '开启' : '关闭');
+    this.autoSpeedLabel = '自动速度：' + autoSpeeds[this.autoSpeed];
+  },
+
+  persistSettings() {
+    storage.set({
+      key: PREFIX + 'settings_v1',
+      value: JSON.stringify({
+        fontSize: this.fontSize,
+        textSpeed: this.textSpeed,
+        autoSpeed: this.autoSpeed,
+      }),
+      success: () => {},
+      fail: () => {},
+      complete: () => {},
+    });
+  },
+
+  toggleSpeed() {
+    this.textSpeed = this.textSpeed === 0 ? 30 : 0;
+    this.refreshSettings();
+    this.persistSettings();
+  },
+
+  toggleFont() {
+    this.fontSize = this.fontSize === 24 ? 28 : 24;
+    this.updateLines();
+    this.refreshSettings();
+    this.persistSettings();
+  },
+
+  toTitle() {
+    if (this.storageBusy) return;
+    this.stopAuto();
+    this.syncProgress();
+    this.writeProgress();
+    this.clearTyping();
+    this.sequence++;
+    this.slotSequence++;
+    this.loading = false;
+    this.mode = 'title';
+    this.clearRuntimeCaches(true);
+    this.refreshProgress();
+    this.checkHasAnySave();
+  },
+
+  updateLines() {
+    const shown = String(this.displayText || '');
+    const source = this.fullText && this.fullText.indexOf(shown) === 0 ? this.fullText : shown;
+    if (this._layoutText !== source || this._layoutFont !== this.fontSize) {
+      let line = '';
+      let width = 0;
+      let start = 0;
+      const out = [];
+      const max = 384 / this.fontSize;
+      for (let i = 0; i < source.length; ) {
+        const cp = source.codePointAt(i);
+        const c = String.fromCodePoint(cp);
+        const step = c.length;
+        const cw = cp < 128 ? 0.52 : 1;
+        if (c === '\n') {
+          out.push({ text: line, start });
+          line = '';
+          width = 0;
+          i += step;
+          start = i;
+          continue;
+        }
+        if (width + cw > max && line) {
+          out.push({ text: line, start });
+          line = '';
+          width = 0;
+          start = i;
+        }
+        line += c;
+        width += cw;
+        i += step;
+      }
+      out.push({ text: line, start });
+      this._layoutText = source;
+      this._layoutFont = this.fontSize;
+      this._dialogueLayout = out;
+    }
+    const baseKey = this.session ? this.session.node + ':' + this.session.index + ':' + this.fontSize : 'idle';
+    const contentH = this._dialogueLayout.length * (this.fontSize === 28 ? 38 : 34) + 6;
+    const prevScrollable = !!this._dialogueScrollable;
+    const scrollable = contentH > 156;
+    this._dialogueScrollable = scrollable;
+    if (this.dialogueScrollable !== scrollable) {
+      this.dialogueScrollable = scrollable;
+    }
+    if (!prevScrollable && scrollable && this.mode === 'play') {
+      this.focusElement('dialogue-scroll');
+    }
+    this.dialogueHeight = Math.max(156, contentH);
+    const lines = new Array(this._dialogueLayout.length);
+    for (let idx = 0; idx < this._dialogueLayout.length; idx++) {
+      const row = this._dialogueLayout[idx];
+      const text = row.text.slice(0, Math.max(0, shown.length - row.start)) || ' ';
+      // Vela QuickApp <text for tid="id"> only re-renders a keyed row when its id changes;
+      // completed and pending rows keep identical keys so only the active row updates per tick.
+      lines[idx] = {
+        id: baseKey + ':' + idx + ':' + text,
+        text,
+      };
+    }
+    this.dialogueLines = lines;
+  },
+
+  toast(message) {
+    prompt.showToast({ message: String(message), duration: 1500, success: () => {}, fail: () => {}, complete: () => {} });
+  },
+
+  fail(message) {
+    this.stopAuto();
+    this.clearTyping();
+    this.loading = false;
+    this.mode = 'error';
+    this.errorText = String(message);
+    console.error('GINKA_RW5 error', message);
+  },
+};
+</script>
+
+<style>
+@font-face {
+  font-family: ginkafont;
+  src: url('/common/ginka-text.otf');
+}
+.page {
+  width: 432px;
+  height: 514px;
+  background-color: #061124;
+  flex-direction: column;
+}
+.art {
+  position: absolute;
+  top: 0px;
+  left: 0px;
+  width: 432px;
+  height: 265px;
+  overflow: hidden;
+  background-color: #030812;
+}
+.background {
+  position: absolute;
+  top: 22px;
+  left: 0px;
+  width: 432px;
+  height: 243px;
+}
+.portrait-group, .body, .face-sheet {
+  position: absolute;
+}
+.portrait-group {
+  top: 22px;
+  left: 0px;
+  width: 432px;
+  height: 243px;
+  overflow: hidden;
+}
+.face-viewport {
+  position: absolute;
+  overflow: hidden;
+}
+.dialogue-panel, .choice-panel {
+  position: absolute;
+  top: 265px;
+  left: 0px;
+  width: 432px;
+  height: 249px;
+}
+.textbox-bg {
+  position: absolute;
+  top: 0px;
+  left: 0px;
+  width: 432px;
+  height: 249px;
+}
+.dialogue-content {
+  position: absolute;
+  top: 0px;
+  left: 0px;
+  width: 432px;
+  height: 249px;
+  flex-direction: column;
+}
+.speaker-head {
+  width: 432px;
+  height: 42px;
+  padding: 8px 24px 0px 24px;
+  flex-direction: column;
+}
+.speaker-row {
+  height: 24px;
+  width: 384px;
+  justify-content: space-between;
+  align-items: center;
+}
+.speaker {
+  font-size: 21px;
+  color: #9ae8ff;
+  font-family: ginkafont;
+}
+.scroll-ctrls {
+  width: 74px;
+  height: 22px;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+}
+.scroll-mini-btn {
+  width: 34px;
+  height: 22px;
+  background-color: rgba(15, 44, 82, 0.92);
+  border-width: 1px;
+  border-color: #298ac2;
+  border-radius: 6px;
+  justify-content: center;
+  align-items: center;
+}
+.scroll-mini-txt {
+  font-size: 13px;
+  color: #8ce4ff;
+  text-align: center;
+  font-family: ginkafont;
+}
+.name-line {
+  width: 384px;
+  height: 14px;
+}
+.dialogue-scroll {
+  width: 384px;
+  height: 156px;
+  margin: 3px 24px 0px 24px;
+}
+.dialogue-lines {
+  width: 384px;
+  flex-direction: column;
+  flex-shrink: 0;
+}
+.dialogue-line {
+  width: 384px;
+  flex-shrink: 0;
+  color: #f0f6ff;
+  font-family: ginkafont;
+}
+.toolbar {
+  width: 432px;
+  height: 48px;
+  padding: 2px 36px 8px 36px;
+  background-color: rgba(4, 12, 26, 0.94);
+  border-top-width: 1px;
+  border-top-color: #1f6796;
+  justify-content: space-between;
+  align-items: center;
+}
+.tool-btn {
+  height: 30px;
+  padding: 0px 12px;
+  border-radius: 8px;
+  background-color: rgba(16, 44, 82, 0.9);
+  border-width: 1px;
+  border-color: #246da0;
+  justify-content: center;
+  align-items: center;
+}
+.tool-btn-menu {
+  background-color: rgba(18, 66, 108, 0.94);
+  border-color: #2ec2df;
+}
+.tool-text {
+  font-size: 17px;
+  color: #ffd984;
+  font-family: ginkafont;
+}
+.tool-text-cyan {
+  color: #9beeff;
+}
+.choice-content {
+  position: absolute;
+  top: 0px;
+  left: 0px;
+  width: 432px;
+  height: 249px;
+  padding: 8px 30px 12px 30px;
+  flex-direction: column;
+}
+.choice-head {
+  width: 372px;
+  height: 32px;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 6px;
+}
+.choice-title {
+  font-size: 20px;
+  color: #8ce4ff;
+  font-family: ginkafont;
+}
+.choice-list {
+  width: 372px;
+  height: 191px;
+}
+.choice-items {
+  width: 372px;
+  flex-direction: column;
+}
+.choice {
+  width: 372px;
+  height: 60px;
+  margin-bottom: 8px;
+}
+.choice-bg {
+  position: absolute;
+  top: 0px;
+  left: 0px;
+  width: 372px;
+  height: 60px;
+}
+.choice-label-box {
+  position: absolute;
+  top: 0px;
+  left: 0px;
+  width: 372px;
+  height: 60px;
+  padding: 0px 18px;
+  justify-content: center;
+  align-items: center;
+}
+.choice-text {
+  font-size: 20px;
+  color: #f4f9ff;
+  text-align: center;
+  font-family: ginkafont;
+}
+.title-page {
+  width: 432px;
+  height: 514px;
+  background-color: #0b2447;
+}
+.title-bg-top {
+  position: absolute;
+  top: 0px;
+  left: 0px;
+  width: 432px;
+  height: 257px;
+}
+.title-bg-bot {
+  position: absolute;
+  top: 257px;
+  left: 0px;
+  width: 432px;
+  height: 257px;
+}
+.title-logo {
+  position: absolute;
+  top: 22px;
+  left: 24px;
+  width: 148px;
+  height: 45px;
+  object-fit: contain;
+}
+.title-menu {
+  position: absolute;
+  top: 248px;
+  left: 24px;
+  width: 240px;
+  height: 256px;
+  flex-direction: column;
+  align-items: flex-start;
+}
+.title-item {
+  height: 38px;
+  padding-right: 14px;
+  flex-direction: row;
+  align-items: center;
+}
+.title-sprite {
+  height: 30px;
+  object-fit: contain;
+}
+.title-new-img {
+  width: 42px;
+  height: 14px;
+  margin-left: 6px;
+}
+.full-panel {
+  position: absolute;
+  top: 0px;
+  left: 0px;
+  width: 432px;
+  height: 514px;
+  background-color: #061124;
+}
+.panel-bg-top {
+  position: absolute;
+  top: 0px;
+  left: 0px;
+  width: 432px;
+  height: 257px;
+}
+.panel-bg-bot {
+  position: absolute;
+  top: 257px;
+  left: 0px;
+  width: 432px;
+  height: 257px;
+}
+.panel-body {
+  position: absolute;
+  top: 0px;
+  left: 0px;
+  width: 432px;
+  height: 514px;
+  flex-direction: column;
+}
+.panel-top-bar {
+  width: 432px;
+  height: 44px;
+  padding: 12px 54px 0px 54px;
+  justify-content: space-between;
+  align-items: center;
+}
+.top-brand {
+  font-size: 17px;
+  color: #7ee3ff;
+  font-family: ginkafont;
+}
+.top-status {
+  font-size: 16px;
+  color: #ffd782;
+  font-family: ginkafont;
+}
+.panel-main {
+  width: 432px;
+  height: 428px;
+  padding: 8px 30px 8px 30px;
+  flex-direction: column;
+}
+.panel-footer-bar {
+  width: 432px;
+  height: 42px;
+  padding: 0px 36px 8px 36px;
+  justify-content: center;
+  align-items: center;
+}
+.footer-hint {
+  font-size: 15px;
+  color: #9be8ff;
+  text-align: center;
+  font-family: ginkafont;
+}
+.ribbon-box {
+  width: 372px;
+  height: 34px;
+  margin-bottom: 8px;
+}
+.ribbon-bg {
+  position: absolute;
+  top: 0px;
+  left: 0px;
+  width: 372px;
+  height: 34px;
+}
+.ribbon-title {
+  position: absolute;
+  top: 0px;
+  left: 14px;
+  width: 344px;
+  height: 32px;
+  font-size: 19px;
+  color: #ffffff;
+  font-family: ginkafont;
+}
+.menu-grid-row {
+  width: 372px;
+  height: 68px;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+.menu-tile {
+  width: 181px;
+  height: 68px;
+  background-color: rgba(14, 38, 72, 0.9);
+  border-radius: 10px;
+  border-width: 1px;
+  border-color: #2573a8;
+  padding: 8px 10px;
+  flex-direction: column;
+  justify-content: center;
+}
+.menu-tile-accent {
+  background-color: rgba(18, 52, 96, 0.92);
+  border-color: #2eb4dc;
+}
+.menu-tile-muted {
+  background-color: rgba(10, 24, 48, 0.86);
+  border-color: #1f456e;
+}
+.menu-tile-title {
+  font-size: 18px;
+  color: #eef6ff;
+  font-family: ginkafont;
+}
+.menu-tile-sub {
+  font-size: 13px;
+  color: #77d4f2;
+  margin-top: 2px;
+  font-family: ginkafont;
+}
+.panel-subtitle {
+  font-size: 17px;
+  color: #b7daf7;
+  text-align: center;
+  margin-bottom: 8px;
+  font-family: ginkafont;
+}
+.panel-btn {
+  width: 372px;
+  height: 50px;
+  background-color: rgba(16, 44, 84, 0.92);
+  border-radius: 10px;
+  border-width: 1px;
+  border-color: #2c8bc2;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 10px;
+}
+.panel-btn-text {
+  font-size: 20px;
+  color: #eef6ff;
+  text-align: center;
+  font-family: ginkafont;
+}
+.primary-btn {
+  background-color: rgba(21, 68, 122, 0.94);
+  border-color: #3cc8ea;
+}
+.danger-btn {
+  background-color: rgba(168, 44, 68, 0.94);
+  border-color: #ff7a92;
+}
+.muted-action {
+  background-color: rgba(11, 26, 52, 0.88);
+  border-color: #214975;
+}
+.muted-txt {
+  color: #93b3d6;
+}
+.slot-list, .dir-list {
+  width: 372px;
+  height: 314px;
+  flex-direction: column;
+}
+.slot-card, .dir-card {
+  width: 372px;
+  height: 72px;
+  background-color: rgba(14, 40, 76, 0.9);
+  border-radius: 10px;
+  border-width: 1px;
+  border-color: #267eb3;
+  margin-bottom: 6px;
+  align-items: center;
+}
+.slot-accent {
+  width: 6px;
+  height: 54px;
+  border-radius: 3px;
+  margin-left: 8px;
+  margin-right: 10px;
+}
+.slot-inner, .dir-inner {
+  width: 338px;
+  height: 60px;
+  flex-direction: column;
+  justify-content: center;
+}
+.slot-top {
+  width: 338px;
+  justify-content: space-between;
+  align-items: center;
+}
+.slot-title, .dir-title {
+  font-size: 19px;
+  color: #8de4ff;
+  font-family: ginkafont;
+}
+.slot-meta, .dir-sub {
+  font-size: 15px;
+  color: #ffd782;
+  font-family: ginkafont;
+}
+.slot-preview {
+  font-size: 16px;
+  color: #dce9fa;
+  margin-top: 4px;
+  font-family: ginkafont;
+}
+.dialog-box {
+  width: 372px;
+  background-color: rgba(11, 30, 60, 0.9);
+  border-radius: 12px;
+  border-width: 1px;
+  border-color: #2baae0;
+  padding: 16px 16px;
+  margin: 8px 0px 18px 0px;
+  flex-direction: column;
+}
+.dialog-box-danger {
+  border-color: #ea4d63;
+}
+.dialog-title {
+  font-size: 22px;
+  color: #8de4ff;
+  margin-bottom: 8px;
+  font-family: ginkafont;
+}
+.danger-title {
+  color: #ff99aa;
+}
+.overwrite-detail, .config-note {
+  font-size: 18px;
+  color: #e2eeff;
+  line-height: 27px;
+  font-family: ginkafont;
+}
+.config-card {
+  width: 372px;
+  height: 50px;
+  background-color: rgba(14, 46, 86, 0.92);
+  border-radius: 10px;
+  border-width: 1px;
+  border-color: #2baae0;
+  padding: 0px 16px;
+  margin-bottom: 8px;
+  justify-content: center;
+  align-items: center;
+}
+.config-card-txt {
+  font-size: 20px;
+  color: #f0f7ff;
+  text-align: center;
+  font-family: ginkafont;
+}
+.gallery-row {
+  width: 372px;
+  height: 150px;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+.gallery-card {
+  width: 181px;
+  height: 150px;
+  background-color: rgba(14, 40, 76, 0.9);
+  border-radius: 10px;
+  border-width: 1px;
+  border-color: #2885bc;
+  flex-direction: column;
+  padding: 6px;
+  align-items: center;
+}
+.gallery-thumb {
+  width: 167px;
+  height: 96px;
+  object-fit: cover;
+  border-radius: 6px;
+}
+.gallery-label {
+  font-size: 15px;
+  color: #eef6ff;
+  margin-top: 8px;
+  text-align: center;
+  font-family: ginkafont;
+}
+.cg-stage-row {
+  width: 376px;
+  height: 248px;
+  margin: 8px 0px 10px 0px;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+}
+.cg-frame {
+  width: 338px;
+  height: 248px;
+  position: relative;
+  overflow: hidden;
+  background-color: #030914;
+  border-width: 1px;
+  border-color: #289ed4;
+  border-radius: 8px;
+}
+.cg-image {
+  position: absolute;
+  object-fit: fill;
+}
+.cg-zoom-col {
+  width: 32px;
+  height: 248px;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: center;
+}
+.cg-zoom-btn {
+  width: 32px;
+  height: 28px;
+  background-color: rgba(15, 44, 82, 0.94);
+  border-width: 1px;
+  border-color: #298ac2;
+  border-radius: 6px;
+  justify-content: center;
+  align-items: center;
+}
+.cg-zoom-btn-txt {
+  font-size: 18px;
+  color: #8ce4ff;
+  text-align: center;
+  font-family: ginkafont;
+}
+.cg-zoom-slider {
+  width: 32px;
+  height: 184px;
+  color: rgba(18, 48, 92, 0.92);
+  selected-color: #289ed4;
+  block-color: #8ce4ff;
+}
+.pager-row {
+  width: 356px;
+  height: 44px;
+  justify-content: space-between;
+  align-items: center;
+  margin: 8px 8px 0px 8px;
+}
+.pager-btn {
+  width: 112px;
+  height: 42px;
+  background-color: rgba(15, 44, 82, 0.92);
+  border-radius: 10px;
+  border-width: 1px;
+  border-color: #298ac2;
+  justify-content: center;
+  align-items: center;
+}
+.pager-btn-center {
+  background-color: rgba(20, 62, 108, 0.94);
+  border-color: #36c4e6;
+}
+.pager-btn-text {
+  font-size: 18px;
+  color: #ffd782;
+  text-align: center;
+  font-family: ginkafont;
+}
+.loading {
+  position: absolute;
+  top: 226px;
+  left: 116px;
+  width: 200px;
+  height: 52px;
+  background-color: rgba(6, 17, 36, 0.94);
+  border-width: 1px;
+  border-color: #25c4de;
+  border-radius: 12px;
+  font-size: 20px;
+  color: #8ce4ff;
+  text-align: center;
+  font-family: ginkafont;
+}
+</style>

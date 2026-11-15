@@ -1,0 +1,301 @@
+{
+  "status": "compiled",
+  "scripts": 38,
+  "sceneNodes": 117,
+  "terminalNodes": 1,
+  "texts": 14998,
+  "choiceNodes": 11,
+  "choiceOptions": 21,
+  "chunks": 106,
+  "storyBytes": 1920339,
+  "largestChunkBytes": 30720,
+  "imageRequests": 1678,
+  "portraits": 1216,
+  "maxVisibleSprites": 6,
+  "omittedMovieCommands": [
+    {
+      "script": "scn000.ks",
+      "scene": "*start",
+      "command": "sysmovie"
+    },
+    {
+      "script": "scn015.ks",
+      "scene": "*dummy1",
+      "command": "sysmovie"
+    },
+    {
+      "script": "scn114.ks",
+      "scene": "*end",
+      "command": "sysmovie"
+    }
+  ],
+  "audioOrMovieOutputFiles": 0,
+  "perScript": [
+    {
+      "script": "scn000.ks",
+      "scenes": 1,
+      "texts": 76,
+      "orderedTextDigest": "b113b1ac773270eaff68291423191d3c34d0e06fef3b079e00a2c8e385f02c1b",
+      "sourceJson": "E:\\Antigravity\\probe\\decoded\\psb\\patch_cr_data\\04368__94d4a97c61498621__96d5af0aeb4b7c67.json"
+    },
+    {
+      "script": "scn001.ks",
+      "scenes": 2,
+      "texts": 445,
+      "orderedTextDigest": "76c25dbda9402a4c14135c108990c4083dcae718e43ae84bf9dab089dc380871",
+      "sourceJson": "E:\\Antigravity\\probe\\decoded\\psb\\patch_cr_data\\04369__94d4a97c61498621__fc6dd471c3c04022.json"
+    },
+    {
+      "script": "scn002.ks",
+      "scenes": 10,
+      "texts": 703,
+      "orderedTextDigest": "741a498429dea0e2f380406c39bea72eb81f0268191651f4ab7d1d134e60111b",
+      "sourceJson": "E:\\Antigravity\\probe\\decoded\\psb\\patch_cr_data\\04370__94d4a97c61498621__522e66707da0a323.json"
+    },
+    {
+      "script": "scn003.ks",
+      "scenes": 7,
+      "texts": 408,
+      "orderedTextDigest": "38bada3efb8a9ac4763072e62063f93bfff17347a88e3f85d1793da4f0133b6e",
+      "sourceJson": "E:\\Antigravity\\probe\\decoded\\psb\\patch_cr_data\\04371__94d4a97c61498621__bc49e7ff0601bf79.json"
+    },
+    {
+      "script": "scn004.ks",
+      "scenes": 6,
+      "texts": 728,
+      "orderedTextDigest": "144d5b57e1ff3697630241483d6b705334bd11ba910bec5045325bc96dc3617d",
+      "sourceJson": "E:\\Antigravity\\probe\\decoded\\psb\\patch_cr_data\\04372__94d4a97c61498621__c9aac6712b2d7522.json"
+    },
+    {
+      "script": "scn005.ks",
+      "scenes": 6,
+      "texts": 792,
+      "orderedTextDigest": "54b25a0373abe2ecf872903939fc72cf68ff25850e2e3cc64d85d501d354324f",
+      "sourceJson": "E:\\Antigravity\\probe\\decoded\\psb\\patch_cr_data\\04373__94d4a97c61498621__ac5e336d66dc3095.json"
+    },
+    {
+      "script": "scn006.ks",
+      "scenes": 2,
+      "texts": 525,
+      "orderedTextDigest": "c989615cfc1990975ea4d6ce905f93809699e93161425df4e8e84aaa4edd6dc4",
+      "sourceJson": "E:\\Antigravity\\probe\\decoded\\psb\\patch_cr_data\\04374__94d4a97c61498621__0c96a8a9d24dfb2e.json"
+    },
+    {
+      "script": "scn007.ks",
+      "scenes": 7,
+      "texts": 728,
+      "orderedTextDigest": "1217a2e00dffc843e5619496a16a72f9132d12e720839da793fd7be241de28be",
+      "sourceJson": "E:\\Antigravity\\probe\\decoded\\psb\\patch_cr_data\\04375__94d4a97c61498621__b01056daaa3bfd91.json"
+    },
+    {
+      "script": "scn008.ks",
+      "scenes": 2,
+      "texts": 194,
+      "orderedTextDigest": "bd257311e311ffa011c2392d696e89f5de3638175cf7c067d18d06e7d2174b09",
+      "sourceJson": "E:\\Antigravity\\probe\\decoded\\psb\\patch_cr_data\\04376__94d4a97c61498621__d648fe0edf746dec.json"
+    },
+    {
+      "script": "scn009.ks",
+      "scenes": 6,
+      "texts": 565,
+      "orderedTextDigest": "4f28d67e96475bc2d01f317794aca62ad5f3bb56f9f2b7411e7be4e32b18a48d",
+      "sourceJson": "E:\\Antigravity\\probe\\decoded\\psb\\patch_cr_data\\04377__94d4a97c61498621__de820599d71cb975.json"
+    },
+    {
+      "script": "scn010.ks",
+      "scenes": 2,
+      "texts": 335,
+      "orderedTextDigest": "72d000d7f2bdc59a4dd2e6d0041d489cdbad37ce18408419115c08a54c1a063a",
+      "sourceJson": "E:\\Antigravity\\probe\\decoded\\psb\\patch_cr_data\\04378__94d4a97c61498621__19cc83a148040496.json"
+    },
+    {
+      "script": "scn011.ks",
+      "scenes": 2,
+      "texts": 558,
+      "orderedTextDigest": "40d1a9b2077078e643aace136f9ee7fda576a6fb12f17e4d1d020c71a7bbe7c8",
+      "sourceJson": "E:\\Antigravity\\probe\\decoded\\psb\\patch_cr_data\\04379__94d4a97c61498621__366beeb9f7c2c702.json"
+    },
+    {
+      "script": "scn012.ks",
+      "scenes": 2,
+      "texts": 640,
+      "orderedTextDigest": "c8a7906eb1ce35251a2e3d98e46ace3457afebf3dd181530614506dc9cd8d448",
+      "sourceJson": "E:\\Antigravity\\probe\\decoded\\psb\\patch_cr_data\\04380__94d4a97c61498621__d076897f5b5c3a90.json"
+    },
+    {
+      "script": "scn013.ks",
+      "scenes": 4,
+      "texts": 36,
+      "orderedTextDigest": "f212c39f03b9576a3a6e9fd75524f7ee1668fbd42247944171cfceeb0ee30ac7",
+      "sourceJson": "E:\\Antigravity\\probe\\decoded\\psb\\patch_cr_data\\04381__94d4a97c61498621__99d3a80b217a85db.json"
+    },
+    {
+      "script": "scn013_a.ks",
+      "scenes": 2,
+      "texts": 47,
+      "orderedTextDigest": "cfa1976071ef08a3cfdd75acf6409381db83e95edcfa603e6c00936d8b500643",
+      "sourceJson": "E:\\Antigravity\\probe\\decoded\\psb\\patch_cr_data\\04382__94d4a97c61498621__5b7f2d7728ef21e0.json"
+    },
+    {
+      "script": "scn013_b.ks",
+      "scenes": 5,
+      "texts": 165,
+      "orderedTextDigest": "528d6eff4e18c86577db8a5683c9d0c9640145e03470ad44e72df6c5920292f2",
+      "sourceJson": "E:\\Antigravity\\probe\\decoded\\psb\\patch_cr_data\\04383__94d4a97c61498621__3167cf69d8efc614.json"
+    },
+    {
+      "script": "scn013_c.ks",
+      "scenes": 5,
+      "texts": 92,
+      "orderedTextDigest": "cd36d87c8cba015ae1a3dba0f6ba22ba6de92b3ad6322a2965af762373c0a48d",
+      "sourceJson": "E:\\Antigravity\\probe\\decoded\\psb\\patch_cr_data\\04384__94d4a97c61498621__d21b4d8f35bc0596.json"
+    },
+    {
+      "script": "scn014.ks",
+      "scenes": 2,
+      "texts": 466,
+      "orderedTextDigest": "3be8459f46c45ef5c1f47058313a1e6759e9ddd7fae96f08e1720d6527dfb98c",
+      "sourceJson": "E:\\Antigravity\\probe\\decoded\\psb\\patch_cr_data\\04385__94d4a97c61498621__032255c0983d3b2f.json"
+    },
+    {
+      "script": "scn015.ks",
+      "scenes": 3,
+      "texts": 568,
+      "orderedTextDigest": "b0103afe2a914c150cd0819624f08b786c60b939a2dbe785e231d2d5c1575d07",
+      "sourceJson": "E:\\Antigravity\\probe\\decoded\\psb\\patch_cr_data\\04386__94d4a97c61498621__90aaea6a3a499d73.json"
+    },
+    {
+      "script": "scn101.ks",
+      "scenes": 2,
+      "texts": 440,
+      "orderedTextDigest": "729c9836dbc19108593788d727c9141eb50a33819e9521ec49a484f88a15aff6",
+      "sourceJson": "E:\\Antigravity\\probe\\decoded\\psb\\patch_cr_data\\04387__94d4a97c61498621__8d7ba724f5be0b11.json"
+    },
+    {
+      "script": "scn102.ks",
+      "scenes": 2,
+      "texts": 520,
+      "orderedTextDigest": "110299f030112d573b92fd55047b0418ed73df84493b132777d94f69a3161349",
+      "sourceJson": "E:\\Antigravity\\probe\\decoded\\psb\\patch_cr_data\\04388__94d4a97c61498621__d4679527c927f989.json"
+    },
+    {
+      "script": "scn103.ks",
+      "scenes": 2,
+      "texts": 658,
+      "orderedTextDigest": "b70317d07ece513ac51e5279cb9e9c87247ec57ee7f8a68eefc7ec819b3fa9f7",
+      "sourceJson": "E:\\Antigravity\\probe\\decoded\\psb\\patch_cr_data\\04389__94d4a97c61498621__2b51b928553a01a1.json"
+    },
+    {
+      "script": "scn104.ks",
+      "scenes": 2,
+      "texts": 439,
+      "orderedTextDigest": "bf3f489b85222b99cc7fd1a5b731f78841e40b4dbeb6fc3fbf632060142579ec",
+      "sourceJson": "E:\\Antigravity\\probe\\decoded\\psb\\patch_cr_data\\04390__94d4a97c61498621__64254a125bad03fc.json"
+    },
+    {
+      "script": "scn105.ks",
+      "scenes": 2,
+      "texts": 560,
+      "orderedTextDigest": "4d1e699a926815e44134ca3ccfb20cb9299969b9f45f5d3791d0137e6779b888",
+      "sourceJson": "E:\\Antigravity\\probe\\decoded\\psb\\patch_cr_data\\04391__94d4a97c61498621__c075d396a4cea742.json"
+    },
+    {
+      "script": "scn106.ks",
+      "scenes": 1,
+      "texts": 721,
+      "orderedTextDigest": "9c3bcb2bb5470f9da748de44694e7e1a4a7f78035b68b74a19030919df621170",
+      "sourceJson": "E:\\Antigravity\\probe\\decoded\\psb\\patch_cr_data\\04392__94d4a97c61498621__404ab03166f9e211.json"
+    },
+    {
+      "script": "scn107.ks",
+      "scenes": 2,
+      "texts": 496,
+      "orderedTextDigest": "b2d5e0b97d4c92e9dc7673c355d523d5b111e1858eded54a12d79f18d92a183f",
+      "sourceJson": "E:\\Antigravity\\probe\\decoded\\psb\\patch_cr_data\\04393__94d4a97c61498621__367dd6eb951b42bf.json"
+    },
+    {
+      "script": "scn108.ks",
+      "scenes": 2,
+      "texts": 450,
+      "orderedTextDigest": "3440f8dab8c7016866da9d98e375821f71f54cf65a8814831c8c7e3f44ae72e6",
+      "sourceJson": "E:\\Antigravity\\probe\\decoded\\psb\\patch_cr_data\\04394__94d4a97c61498621__34c62707a927467d.json"
+    },
+    {
+      "script": "scn109.ks",
+      "scenes": 2,
+      "texts": 246,
+      "orderedTextDigest": "ef471b4b52a4b80c080f4a5543d472c865533ec30130ec1db9db6a5b7c1f400b",
+      "sourceJson": "E:\\Antigravity\\probe\\decoded\\psb\\patch_cr_data\\04395__94d4a97c61498621__6b2d2564617e4640.json"
+    },
+    {
+      "script": "scn110.ks",
+      "scenes": 2,
+      "texts": 430,
+      "orderedTextDigest": "f531297efcf2f2fdd4eced8590c3a2a491ce93b6c8cfb8e1d2384569797ffd2d",
+      "sourceJson": "E:\\Antigravity\\probe\\decoded\\psb\\patch_cr_data\\04396__94d4a97c61498621__74eb434febce0191.json"
+    },
+    {
+      "script": "scn111.ks",
+      "scenes": 2,
+      "texts": 499,
+      "orderedTextDigest": "3ad1c4dd14210e9ccc448a551701b8f925c1365e2ca06b0080b11f65f5bfa85f",
+      "sourceJson": "E:\\Antigravity\\probe\\decoded\\psb\\patch_cr_data\\04397__94d4a97c61498621__80ba517b0eba3b4e.json"
+    },
+    {
+      "script": "scn112.ks",
+      "scenes": 2,
+      "texts": 395,
+      "orderedTextDigest": "2f84b72832a32e7b7064d9206509b0824faaa1a00766b7b6f3972ba769412543",
+      "sourceJson": "E:\\Antigravity\\probe\\decoded\\psb\\patch_cr_data\\04398__94d4a97c61498621__15d3f5327ac95129.json"
+    },
+    {
+      "script": "scn113.ks",
+      "scenes": 5,
+      "texts": 214,
+      "orderedTextDigest": "f993604d5854501d36e3b4f9ea290c71a324024ab48bd70eac1b006ff952a889",
+      "sourceJson": "E:\\Antigravity\\probe\\decoded\\psb\\patch_cr_data\\04399__94d4a97c61498621__3ee1d6b5329d28df.json"
+    },
+    {
+      "script": "scn114.ks",
+      "scenes": 3,
+      "texts": 322,
+      "orderedTextDigest": "af0fbc3e5098b98227017599f6fd6b20d2acaba75590e30f3d939e20d0b169d7",
+      "sourceJson": "E:\\Antigravity\\probe\\decoded\\psb\\patch_cr_data\\04400__94d4a97c61498621__f11f7f8b972f5b0c.json"
+    },
+    {
+      "script": "scn901.ks",
+      "scenes": 2,
+      "texts": 5,
+      "orderedTextDigest": "22157bed4b6ffc5197e88da389a2dc68b1019dfd0cf2aa10dffba601d7a40f3c",
+      "sourceJson": "E:\\Antigravity\\probe\\decoded\\psb\\patch_cr_data\\04401__94d4a97c61498621__b27c9ae063a0327d.json"
+    },
+    {
+      "script": "scn902.ks",
+      "scenes": 2,
+      "texts": 9,
+      "orderedTextDigest": "d5572abf5c55c5994672f00218e356506f4b69b275a97680decaf1989a5ef23a",
+      "sourceJson": "E:\\Antigravity\\probe\\decoded\\psb\\patch_cr_data\\04402__94d4a97c61498621__6935cff9ac580d30.json"
+    },
+    {
+      "script": "scn903.ks",
+      "scenes": 2,
+      "texts": 100,
+      "orderedTextDigest": "41c3841824530900ecd22c8be71f427b68ac43991e40ae1ea8c27837a367de29",
+      "sourceJson": "E:\\Antigravity\\probe\\decoded\\psb\\patch_cr_data\\04403__94d4a97c61498621__416b01dec11e4312.json"
+    },
+    {
+      "script": "scn904.ks",
+      "scenes": 2,
+      "texts": 8,
+      "orderedTextDigest": "69edb23538dc6ac607ea40e437bc75cb06a1678069f2be48d92fd609643af777",
+      "sourceJson": "E:\\Antigravity\\probe\\decoded\\psb\\patch_cr_data\\04404__94d4a97c61498621__918aa521b8e36ba5.json"
+    },
+    {
+      "script": "after.ks",
+      "scenes": 2,
+      "texts": 415,
+      "orderedTextDigest": "55987c5f4f040e11a4c645c8f60ad82828150c4055749bc4eec2b9f498e374da",
+      "sourceJson": "E:\\Antigravity\\probe\\decoded\\psb\\patch_cr_data\\00002__94d4a97c61498621__040e635a3e1c460d.json"
+    }
+  ]
+}

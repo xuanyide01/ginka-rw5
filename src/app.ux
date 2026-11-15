@@ -1,0 +1,6 @@
+<script>
+export default {
+  onCreate() { console.log('GINKA_RW5 app created'); },
+  onDestroy() { console.log('GINKA_RW5 app destroyed'); }
+}
+</script>

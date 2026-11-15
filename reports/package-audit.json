@@ -1,0 +1,23 @@
+{
+  "file": "com.antigravity.ginka.rw5.debug.0.1.2.rpk",
+  "package": "com.antigravity.ginka.rw5",
+  "version": "0.1.2",
+  "bytes": 9652897,
+  "expandedBytes": 11157774,
+  "entries": 1123,
+  "sha256": "cc5eb438f3f98e445a29c17104e8577f4049254c875813b9346e397676a57af0",
+  "certificateSha256": "4e8e1ee24968b0dad6d0956a7e14d848b38b22a203f39c389a45d8737bdc4585",
+  "zipCRCValid": true,
+  "outerSignatureValid": true,
+  "innerSignatureValid": true,
+  "allFileDigestsValid": true,
+  "signedFiles": 1090,
+  "commonFilesMatchSource": true,
+  "decodedImages": 977,
+  "fontCoverageStrings": 57398,
+  "circularIcon": true,
+  "galleryGroups": 32,
+  "galleryImages": 134,
+  "audioOrVideoEntries": 0,
+  "physicalDeviceTested": false
+}
